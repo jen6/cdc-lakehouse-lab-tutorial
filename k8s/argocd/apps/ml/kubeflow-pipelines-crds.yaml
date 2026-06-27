@@ -1,0 +1,23 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kubeflow-pipelines-crds
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "19"
+spec:
+  project: ml
+  source:
+    repoURL: https://github.com/your-org/cdc-lakehouse-lab.git
+    targetRevision: main
+    path: k8s/apps/ml/kubeflow-pipelines-crds
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: kubeflow
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true

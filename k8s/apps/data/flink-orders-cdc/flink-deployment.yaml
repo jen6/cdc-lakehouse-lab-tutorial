@@ -1,0 +1,51 @@
+apiVersion: flink.apache.org/v1beta1
+kind: FlinkDeployment
+metadata:
+  name: orders-cdc
+  namespace: data
+spec:
+  image: REPLACE_WITH_FLINK_ICEBERG_IMAGE
+  imagePullPolicy: Always
+  restartNonce: 20260627232222
+  flinkVersion: v1_19
+  serviceAccount: flink-orders-cdc
+  podTemplate:
+    spec:
+      containers:
+        - name: flink-main-container
+          ports:
+            - name: metrics
+              containerPort: 9249
+          volumeMounts:
+            - name: orders-cdc-sql
+              mountPath: /opt/flink/sql
+              readOnly: true
+      volumes:
+        - name: orders-cdc-sql
+          configMap:
+            name: flink-orders-cdc-sql
+  flinkConfiguration:
+    taskmanager.numberOfTaskSlots: "2"
+    state.backend.type: rocksdb
+    state.checkpoints.dir: s3://REPLACE_WITH_LAKEHOUSE_BUCKET/flink/checkpoints/orders-cdc
+    state.savepoints.dir: s3://REPLACE_WITH_LAKEHOUSE_BUCKET/flink/savepoints/orders-cdc
+    execution.checkpointing.interval: 60s
+    fs.s3a.aws.credentials.provider: com.amazonaws.auth.WebIdentityTokenCredentialsProvider
+    metrics.reporters: prom
+    metrics.reporter.prom.factory.class: org.apache.flink.metrics.prometheus.PrometheusReporterFactory
+    metrics.reporter.prom.port: "9249"
+  jobManager:
+    resource:
+      memory: "1024m"
+      cpu: 0.5
+  taskManager:
+    resource:
+      memory: "2048m"
+      cpu: 1
+  job:
+    jarURI: local:///opt/flink/usrlib/sql-runner.jar
+    args:
+      - /opt/flink/sql/cdc_to_iceberg.sql
+    parallelism: 1
+    upgradeMode: stateless
+    state: running

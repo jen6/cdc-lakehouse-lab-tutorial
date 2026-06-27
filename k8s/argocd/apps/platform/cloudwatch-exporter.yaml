@@ -1,0 +1,206 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: cloudwatch-exporter
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "20"
+spec:
+  project: platform
+  source:
+    repoURL: https://prometheus-community.github.io/helm-charts
+    chart: prometheus-cloudwatch-exporter
+    targetRevision: 0.28.1
+    helm:
+      releaseName: cloudwatch-exporter
+      values: |
+        aws:
+          stsRegional:
+            enabled: true
+        serviceAccount:
+          create: true
+          name: cloudwatch-exporter
+          annotations:
+            eks.amazonaws.com/role-arn: REPLACE_WITH_PLATFORM_WORKLOADS_ROLE_ARN
+            eks.amazonaws.com/sts-regional-endpoints: "true"
+        serviceMonitor:
+          enabled: true
+          interval: 60s
+          timeout: 30s
+          labels:
+            release: kube-prometheus-stack
+        resources:
+          requests:
+            cpu: 50m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+        config: |-
+          region: ap-northeast-2
+          period_seconds: 60
+          range_seconds: 300
+          delay_seconds: 120
+          set_timestamp: false
+          use_get_metric_data: true
+          list_metrics_cache_ttl: 600
+          metrics:
+            - aws_namespace: AWS/RDS
+              aws_metric_name: CPUUtilization
+              aws_dimensions: [DBInstanceIdentifier]
+              aws_dimension_select:
+                DBInstanceIdentifier: [REPLACE_WITH_RDS_DB_INSTANCE_IDENTIFIER]
+              aws_statistics: [Average, Maximum]
+            - aws_namespace: AWS/RDS
+              aws_metric_name: DatabaseConnections
+              aws_dimensions: [DBInstanceIdentifier]
+              aws_dimension_select:
+                DBInstanceIdentifier: [REPLACE_WITH_RDS_DB_INSTANCE_IDENTIFIER]
+              aws_statistics: [Average, Maximum]
+            - aws_namespace: AWS/RDS
+              aws_metric_name: FreeStorageSpace
+              aws_dimensions: [DBInstanceIdentifier]
+              aws_dimension_select:
+                DBInstanceIdentifier: [REPLACE_WITH_RDS_DB_INSTANCE_IDENTIFIER]
+              aws_statistics: [Average, Minimum]
+            - aws_namespace: AWS/RDS
+              aws_metric_name: FreeableMemory
+              aws_dimensions: [DBInstanceIdentifier]
+              aws_dimension_select:
+                DBInstanceIdentifier: [REPLACE_WITH_RDS_DB_INSTANCE_IDENTIFIER]
+              aws_statistics: [Average, Minimum]
+            - aws_namespace: AWS/RDS
+              aws_metric_name: ReadIOPS
+              aws_dimensions: [DBInstanceIdentifier]
+              aws_dimension_select:
+                DBInstanceIdentifier: [REPLACE_WITH_RDS_DB_INSTANCE_IDENTIFIER]
+              aws_statistics: [Average, Maximum]
+            - aws_namespace: AWS/RDS
+              aws_metric_name: WriteIOPS
+              aws_dimensions: [DBInstanceIdentifier]
+              aws_dimension_select:
+                DBInstanceIdentifier: [REPLACE_WITH_RDS_DB_INSTANCE_IDENTIFIER]
+              aws_statistics: [Average, Maximum]
+            - aws_namespace: AWS/RDS
+              aws_metric_name: ReadLatency
+              aws_dimensions: [DBInstanceIdentifier]
+              aws_dimension_select:
+                DBInstanceIdentifier: [REPLACE_WITH_RDS_DB_INSTANCE_IDENTIFIER]
+              aws_statistics: [Average, Maximum]
+            - aws_namespace: AWS/RDS
+              aws_metric_name: WriteLatency
+              aws_dimensions: [DBInstanceIdentifier]
+              aws_dimension_select:
+                DBInstanceIdentifier: [REPLACE_WITH_RDS_DB_INSTANCE_IDENTIFIER]
+              aws_statistics: [Average, Maximum]
+            - aws_namespace: AWS/RDS
+              aws_metric_name: BinLogDiskUsage
+              aws_dimensions: [DBInstanceIdentifier]
+              aws_dimension_select:
+                DBInstanceIdentifier: [REPLACE_WITH_RDS_DB_INSTANCE_IDENTIFIER]
+              aws_statistics: [Average, Maximum]
+            - aws_namespace: AWS/Kafka
+              aws_metric_name: CpuUser
+              aws_dimensions: ["Cluster Name", "Broker ID"]
+              aws_dimension_select:
+                "Cluster Name": [REPLACE_WITH_MSK_CLUSTER_NAME]
+              aws_statistics: [Average, Maximum]
+            - aws_namespace: AWS/Kafka
+              aws_metric_name: CpuSystem
+              aws_dimensions: ["Cluster Name", "Broker ID"]
+              aws_dimension_select:
+                "Cluster Name": [REPLACE_WITH_MSK_CLUSTER_NAME]
+              aws_statistics: [Average, Maximum]
+            - aws_namespace: AWS/Kafka
+              aws_metric_name: CpuIdle
+              aws_dimensions: ["Cluster Name", "Broker ID"]
+              aws_dimension_select:
+                "Cluster Name": [REPLACE_WITH_MSK_CLUSTER_NAME]
+              aws_statistics: [Average, Minimum]
+            - aws_namespace: AWS/Kafka
+              aws_metric_name: MemoryUsed
+              aws_dimensions: ["Cluster Name", "Broker ID"]
+              aws_dimension_select:
+                "Cluster Name": [REPLACE_WITH_MSK_CLUSTER_NAME]
+              aws_statistics: [Average, Maximum]
+            - aws_namespace: AWS/Kafka
+              aws_metric_name: KafkaDataLogsDiskUsed
+              aws_dimensions: ["Cluster Name", "Broker ID"]
+              aws_dimension_select:
+                "Cluster Name": [REPLACE_WITH_MSK_CLUSTER_NAME]
+              aws_statistics: [Average, Maximum]
+            - aws_namespace: AWS/Kafka
+              aws_metric_name: BytesInPerSec
+              aws_dimensions: ["Cluster Name", "Broker ID"]
+              aws_dimension_select:
+                "Cluster Name": [REPLACE_WITH_MSK_CLUSTER_NAME]
+              aws_statistics: [Average, Sum]
+            - aws_namespace: AWS/Kafka
+              aws_metric_name: BytesOutPerSec
+              aws_dimensions: ["Cluster Name", "Broker ID"]
+              aws_dimension_select:
+                "Cluster Name": [REPLACE_WITH_MSK_CLUSTER_NAME]
+              aws_statistics: [Average, Sum]
+            - aws_namespace: AWS/Kafka
+              aws_metric_name: MessagesInPerSec
+              aws_dimensions: ["Cluster Name", "Broker ID"]
+              aws_dimension_select:
+                "Cluster Name": [REPLACE_WITH_MSK_CLUSTER_NAME]
+              aws_statistics: [Average, Sum]
+            - aws_namespace: AWS/Kafka
+              aws_metric_name: UnderReplicatedPartitions
+              aws_dimensions: ["Cluster Name", "Broker ID"]
+              aws_dimension_select:
+                "Cluster Name": [REPLACE_WITH_MSK_CLUSTER_NAME]
+              aws_statistics: [Average, Maximum]
+            - aws_namespace: AWS/Kafka
+              aws_metric_name: UnderMinIsrPartitionCount
+              aws_dimensions: ["Cluster Name", "Broker ID"]
+              aws_dimension_select:
+                "Cluster Name": [REPLACE_WITH_MSK_CLUSTER_NAME]
+              aws_statistics: [Average, Maximum]
+            - aws_namespace: AWS/Kafka
+              aws_metric_name: OfflinePartitionsCount
+              aws_dimensions: ["Cluster Name", "Broker ID"]
+              aws_dimension_select:
+                "Cluster Name": [REPLACE_WITH_MSK_CLUSTER_NAME]
+              aws_statistics: [Average, Maximum]
+            - aws_namespace: AWS/Kafka
+              aws_metric_name: ActiveControllerCount
+              aws_dimensions: ["Cluster Name"]
+              aws_dimension_select:
+                "Cluster Name": [REPLACE_WITH_MSK_CLUSTER_NAME]
+              aws_statistics: [Average, Maximum]
+            - aws_namespace: AWS/Kafka
+              aws_metric_name: GlobalTopicCount
+              aws_dimensions: ["Cluster Name"]
+              aws_dimension_select:
+                "Cluster Name": [REPLACE_WITH_MSK_CLUSTER_NAME]
+              aws_statistics: [Average, Maximum]
+            - aws_namespace: AWS/Kafka
+              aws_metric_name: GlobalPartitionCount
+              aws_dimensions: ["Cluster Name"]
+              aws_dimension_select:
+                "Cluster Name": [REPLACE_WITH_MSK_CLUSTER_NAME]
+              aws_statistics: [Average, Maximum]
+            - aws_namespace: AWS/Kafka
+              aws_metric_name: MaxOffsetLag
+              aws_dimensions: ["Cluster Name", "Consumer Group", "Topic"]
+              aws_dimension_select:
+                "Cluster Name": [REPLACE_WITH_MSK_CLUSTER_NAME]
+              aws_statistics: [Average, Maximum]
+            - aws_namespace: AWS/Kafka
+              aws_metric_name: SumOffsetLag
+              aws_dimensions: ["Cluster Name", "Consumer Group", "Topic"]
+              aws_dimension_select:
+                "Cluster Name": [REPLACE_WITH_MSK_CLUSTER_NAME]
+              aws_statistics: [Average, Maximum]
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: platform
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

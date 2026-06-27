@@ -1,0 +1,14 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - namespace.yaml
+  - cdc-lakehouse-dashboard.yaml
+  - cdc-lakehouse-app-internals-dashboard.yaml
+  - community-aws-msk-dashboard.yaml
+  - community-aws-rds-dashboard.yaml
+  - cdc-lakehouse-flink-dashboard.yaml
+  - cdc-lakehouse-kafka-connect-dashboard.yaml
+  - cdc-lakehouse-msk-dashboard.yaml
+  - cdc-lakehouse-rds-dashboard.yaml
+  - cdc-lakehouse-source-generator-dashboard.yaml
+  - cdc-lakehouse-trino-dashboard.yaml

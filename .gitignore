@@ -1,0 +1,15 @@
+.terraform/
+.tmp/
+terraform.tfstate
+terraform.tfstate.*
+*.tfvars
+!terraform.tfvars.example
+k8s/rendered/
+
+.venv/
+__pycache__/
+*.pyc
+target/
+.omx/
+
+.DS_Store

@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kafka-connect-config
+  namespace: data
+data:
+  mode: REPLACE_WITH_MSK_MODE
+  bootstrap.servers: REPLACE_WITH_MSK_BOOTSTRAP_BROKERS
+  group.id: cdc-lakehouse-connect
+  config.storage.topic: _connect_configs
+  offset.storage.topic: _connect_offsets
+  status.storage.topic: _connect_status
+  connector.class: io.debezium.connector.mysql.MySqlConnector
+  topic.prefix: rds
+  database.include.list: commerce,payment,logistics
+  table.include.list: commerce.orders,commerce.order_items,commerce.inventory,payment.payments,logistics.shipments

@@ -1,0 +1,73 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: platform
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "-10"
+spec:
+  description: Shared operators, observability, and platform services.
+  sourceRepos:
+    - https://charts.jetstack.io
+    - https://charts.external-secrets.io
+    - https://prometheus-community.github.io/helm-charts
+    - https://github.com/your-org/cdc-lakehouse-lab.git
+  destinations:
+    - server: https://kubernetes.default.svc
+      namespace: cert-manager
+    - server: https://kubernetes.default.svc
+      namespace: kube-system
+    - server: https://kubernetes.default.svc
+      namespace: platform
+  clusterResourceWhitelist:
+    - group: "*"
+      kind: "*"
+  namespaceResourceWhitelist:
+    - group: "*"
+      kind: "*"
+---
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: data
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "-10"
+spec:
+  description: CDC runtimes, stream processing, and lakehouse query services.
+  sourceRepos:
+    - https://downloads.apache.org/flink/flink-kubernetes-operator-1.12.1/
+    - https://trinodb.github.io/charts
+    - https://github.com/your-org/cdc-lakehouse-lab.git
+  destinations:
+    - server: https://kubernetes.default.svc
+      namespace: data
+  clusterResourceWhitelist:
+    - group: "*"
+      kind: "*"
+  namespaceResourceWhitelist:
+    - group: "*"
+      kind: "*"
+---
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: ml
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "-10"
+spec:
+  description: Kubeflow Pipelines and ML workflow services.
+  sourceRepos:
+    - https://github.com/your-org/cdc-lakehouse-lab.git
+  destinations:
+    - server: https://kubernetes.default.svc
+      namespace: kubeflow
+    - server: https://kubernetes.default.svc
+      namespace: ml
+  clusterResourceWhitelist:
+    - group: "*"
+      kind: "*"
+  namespaceResourceWhitelist:
+    - group: "*"
+      kind: "*"

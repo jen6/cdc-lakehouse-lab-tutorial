@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: source-generator
+  namespace: data
+  annotations:
+    argocd.argoproj.io/sync-wave: "20"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: source-generator
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: source-generator
+    spec:
+      serviceAccountName: source-generator
+      containers:
+        - name: generator
+          image: REPLACE_WITH_SOURCE_GENERATOR_IMAGE
+          imagePullPolicy: Always
+          ports:
+            - name: metrics
+              containerPort: 9102
+          env:
+            - name: MYSQL_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: source-generator-rds
+                  key: host
+            - name: MYSQL_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: source-generator-rds
+                  key: port
+            - name: MYSQL_USER
+              valueFrom:
+                secretKeyRef:
+                  name: source-generator-rds
+                  key: username
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: source-generator-rds
+                  key: password
+            - name: RATE_PER_SECOND
+              value: "2"
+            - name: METRICS_PORT
+              value: "9102"
+          args:
+            - run
+            - --rate-per-second
+            - "$(RATE_PER_SECOND)"
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi

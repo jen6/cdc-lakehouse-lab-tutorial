@@ -1,0 +1,141 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: flink-orders-cdc-sql
+  namespace: data
+data:
+  cdc_to_iceberg.sql: |
+    CREATE CATALOG glue_catalog WITH (
+      'type' = 'iceberg',
+      'catalog-impl' = 'org.apache.iceberg.aws.glue.GlueCatalog',
+      'warehouse' = 's3://REPLACE_WITH_LAKEHOUSE_BUCKET/warehouse',
+      'io-impl' = 'org.apache.iceberg.aws.s3.S3FileIO'
+    );
+
+    CREATE TABLE orders_envelope_kafka (
+      payload ROW<
+        `before` ROW<
+          order_id BIGINT,
+          customer_id BIGINT,
+          status STRING,
+          total_amount STRING,
+          created_at STRING,
+          updated_at STRING,
+          risk_score STRING
+        >,
+        `after` ROW<
+          order_id BIGINT,
+          customer_id BIGINT,
+          status STRING,
+          total_amount STRING,
+          created_at STRING,
+          updated_at STRING,
+          risk_score STRING
+        >,
+        op STRING,
+        ts_ms BIGINT
+      >
+    ) WITH (
+      'connector' = 'kafka',
+      'topic' = 'rds.commerce.orders',
+      'properties.bootstrap.servers' = 'REPLACE_WITH_MSK_BOOTSTRAP_BROKERS',
+      'properties.group.id' = 'flink-orders-bronze',
+      'scan.startup.mode' = 'earliest-offset',
+      'format' = 'json',
+      'json.ignore-parse-errors' = 'true'
+    );
+
+    CREATE TABLE orders_changelog_kafka (
+      order_id BIGINT,
+      customer_id BIGINT,
+      status STRING,
+      total_amount DECIMAL(12, 2),
+      created_at STRING,
+      updated_at STRING,
+      risk_score DECIMAL(5, 2),
+      PRIMARY KEY (order_id) NOT ENFORCED
+    ) WITH (
+      'connector' = 'kafka',
+      'topic' = 'rds.commerce.orders',
+      'properties.bootstrap.servers' = 'REPLACE_WITH_MSK_BOOTSTRAP_BROKERS',
+      'properties.group.id' = 'flink-orders-silver',
+      'scan.startup.mode' = 'earliest-offset',
+      'format' = 'debezium-json',
+      'debezium-json.schema-include' = 'true'
+    );
+
+    CREATE DATABASE IF NOT EXISTS glue_catalog.lab_bronze;
+    CREATE DATABASE IF NOT EXISTS glue_catalog.lab_silver;
+    CREATE DATABASE IF NOT EXISTS glue_catalog.lab_gold;
+
+    CREATE TABLE IF NOT EXISTS glue_catalog.lab_bronze.orders_cdc_events (
+      order_id BIGINT,
+      customer_id BIGINT,
+      status STRING,
+      total_amount DECIMAL(12, 2),
+      created_at STRING,
+      updated_at STRING,
+      risk_score DECIMAL(5, 2),
+      op STRING,
+      is_deleted BOOLEAN,
+      event_ts TIMESTAMP_LTZ(3)
+    ) WITH (
+      'format-version' = '2'
+    );
+
+    CREATE TABLE IF NOT EXISTS glue_catalog.lab_silver.orders_current (
+      order_id BIGINT,
+      customer_id BIGINT,
+      status STRING,
+      total_amount DECIMAL(12, 2),
+      created_at STRING,
+      updated_at STRING,
+      risk_score DECIMAL(5, 2),
+      PRIMARY KEY (order_id) NOT ENFORCED
+    ) WITH (
+      'format-version' = '2',
+      'write.upsert.enabled' = 'true'
+    );
+
+    CREATE TABLE IF NOT EXISTS glue_catalog.lab_gold.order_revenue_by_status (
+      status STRING,
+      order_count BIGINT,
+      gross_amount DECIMAL(18, 2),
+      PRIMARY KEY (status) NOT ENFORCED
+    ) WITH (
+      'format-version' = '2',
+      'write.upsert.enabled' = 'true'
+    );
+
+    INSERT INTO glue_catalog.lab_bronze.orders_cdc_events
+    SELECT
+      COALESCE(payload.`after`.order_id, payload.`before`.order_id),
+      COALESCE(payload.`after`.customer_id, payload.`before`.customer_id),
+      COALESCE(payload.`after`.status, payload.`before`.status),
+      CAST(COALESCE(payload.`after`.total_amount, payload.`before`.total_amount) AS DECIMAL(12, 2)),
+      COALESCE(payload.`after`.created_at, payload.`before`.created_at),
+      COALESCE(payload.`after`.updated_at, payload.`before`.updated_at),
+      CAST(COALESCE(payload.`after`.risk_score, payload.`before`.risk_score) AS DECIMAL(5, 2)),
+      payload.op,
+      payload.op = 'd',
+      TO_TIMESTAMP_LTZ(payload.ts_ms, 3)
+    FROM orders_envelope_kafka;
+
+    INSERT INTO glue_catalog.lab_silver.orders_current
+    SELECT
+      order_id,
+      customer_id,
+      status,
+      total_amount,
+      created_at,
+      updated_at,
+      risk_score
+    FROM orders_changelog_kafka;
+
+    INSERT INTO glue_catalog.lab_gold.order_revenue_by_status
+    SELECT
+      status,
+      COUNT(*) AS order_count,
+      CAST(SUM(total_amount) AS DECIMAL(18, 2)) AS gross_amount
+    FROM orders_changelog_kafka
+    GROUP BY status;

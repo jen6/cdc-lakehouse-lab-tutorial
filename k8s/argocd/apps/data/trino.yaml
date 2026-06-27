@@ -1,0 +1,55 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: trino
+  namespace: argocd
+spec:
+  project: data
+  source:
+    repoURL: https://trinodb.github.io/charts
+    chart: trino
+    targetRevision: 0.28.0
+    helm:
+      releaseName: trino
+      values: |
+        serviceAccount:
+          create: true
+          name: trino
+          annotations:
+            eks.amazonaws.com/role-arn: REPLACE_WITH_DATA_WORKLOADS_ROLE_ARN
+        server:
+          workers: 1
+        jmx:
+          enabled: true
+          exporter:
+            enabled: true
+            image: bitnami/jmx-exporter:latest
+            pullPolicy: IfNotPresent
+            port: 5556
+            configProperties: |-
+              startDelaySeconds: 0
+              hostPort: localhost:9080
+              ssl: false
+              lowercaseOutputName: true
+              lowercaseOutputLabelNames: true
+        serviceMonitor:
+          enabled: true
+          labels:
+            release: kube-prometheus-stack
+          interval: 30s
+        additionalCatalogs:
+          iceberg: |
+            connector.name=iceberg
+            iceberg.catalog.type=glue
+            hive.metastore.glue.region=ap-northeast-2
+            fs.native-s3.enabled=true
+            s3.region=ap-northeast-2
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: data
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

@@ -1,0 +1,67 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: register-rds-commerce-source
+  namespace: data
+  annotations:
+    argocd.argoproj.io/sync-wave: "10"
+spec:
+  template:
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: register
+          image: curlimages/curl:8.9.1
+          env:
+            - name: DB_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: rds-source
+                  key: host
+            - name: DB_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: rds-source
+                  key: port
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: rds-source
+                  key: username
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: rds-source
+                  key: password
+          command:
+            - /bin/sh
+            - -ec
+            - |
+              until curl -fsS http://kafka-connect:8083/connectors >/dev/null; do
+                sleep 5
+              done
+              cat >/tmp/connector.json <<EOF
+              {
+                "connector.class": "io.debezium.connector.mysql.MySqlConnector",
+                "tasks.max": "1",
+                "database.hostname": "${DB_HOST}",
+                "database.port": "${DB_PORT}",
+                "database.user": "${DB_USER}",
+                "database.password": "${DB_PASSWORD}",
+                "database.server.id": "5401",
+                "topic.prefix": "rds",
+                "database.include.list": "commerce,payment,logistics",
+                "table.include.list": "commerce.orders,commerce.order_items,commerce.inventory,payment.payments,logistics.shipments",
+                "include.schema.changes": "true",
+                "snapshot.mode": "initial",
+                "schema.history.internal.kafka.bootstrap.servers": "REPLACE_WITH_MSK_BOOTSTRAP_BROKERS",
+                "schema.history.internal.kafka.topic": "schemahistory.rds",
+                "tombstones.on.delete": "true",
+                "decimal.handling.mode": "string",
+                "time.precision.mode": "adaptive_time_microseconds"
+              }
+              EOF
+              curl -fsS -X PUT \
+                -H 'Content-Type: application/json' \
+                --data @/tmp/connector.json \
+                http://kafka-connect:8083/connectors/rds-commerce-source/config

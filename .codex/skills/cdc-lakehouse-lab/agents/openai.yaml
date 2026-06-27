@@ -1,0 +1,4 @@
+interface:
+  display_name: "CDC Lakehouse Lab"
+  short_description: "Set up and tear down the AWS CDC Lakehouse tutorial lab safely."
+  default_prompt: "Use this skill to bootstrap, verify, or tear down the CDC Lakehouse tutorial lab from this repository."

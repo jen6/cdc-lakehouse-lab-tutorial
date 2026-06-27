@@ -1,0 +1,41 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: source-generator-bootstrap
+  namespace: data
+  annotations:
+    argocd.argoproj.io/sync-wave: "10"
+    argocd.argoproj.io/sync-options: Force=true,Replace=true
+spec:
+  backoffLimit: 4
+  template:
+    spec:
+      serviceAccountName: source-generator
+      restartPolicy: OnFailure
+      containers:
+        - name: bootstrap
+          image: REPLACE_WITH_SOURCE_GENERATOR_IMAGE
+          imagePullPolicy: Always
+          env:
+            - name: MYSQL_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: source-generator-rds
+                  key: host
+            - name: MYSQL_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: source-generator-rds
+                  key: port
+            - name: MYSQL_USER
+              valueFrom:
+                secretKeyRef:
+                  name: source-generator-rds
+                  key: username
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: source-generator-rds
+                  key: password
+          args:
+            - bootstrap

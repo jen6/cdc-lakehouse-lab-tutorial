@@ -1,0 +1,725 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboard-cdc-lakehouse-flink
+  namespace: platform
+  labels:
+    grafana_dashboard: '1'
+data:
+  cdc-lakehouse-flink.json: |-
+    {
+      "annotations": {
+        "list": [
+          {
+            "builtIn": 1,
+            "datasource": {
+              "type": "grafana",
+              "uid": "-- Grafana --"
+            },
+            "enable": true,
+            "hide": true,
+            "iconColor": "rgba(0, 211, 255, 1)",
+            "name": "Annotations & Alerts",
+            "type": "dashboard"
+          }
+        ]
+      },
+      "editable": true,
+      "fiscalYearStartMonth": 0,
+      "graphTooltip": 0,
+      "id": null,
+      "links": [
+
+      ],
+      "liveNow": false,
+      "panels": [
+        {
+          "id": 1,
+          "type": "stat",
+          "title": "Flink Scrape Targets",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "gridPos": {
+            "x": 0,
+            "y": 0,
+            "w": 6,
+            "h": 4
+          },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "mappings": [
+
+              ],
+              "color": {
+                "mode": "thresholds"
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "red",
+                    "value": 1
+                  }
+                ]
+              }
+            },
+            "overrides": [
+
+            ]
+          },
+          "options": {
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "orientation": "auto",
+            "textMode": "auto",
+            "colorMode": "background",
+            "graphMode": "area",
+            "justifyMode": "center"
+          },
+          "targets": [
+            {
+              "editorMode": "code",
+              "expr": "count(up{namespace=\"$namespace\",job=\"data/orders-cdc-flink\"} == 1)",
+              "range": true,
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "type": "stat",
+          "title": "Running Jobs",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "gridPos": {
+            "x": 6,
+            "y": 0,
+            "w": 6,
+            "h": 4
+          },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "mappings": [
+
+              ],
+              "color": {
+                "mode": "thresholds"
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "red",
+                    "value": 1
+                  }
+                ]
+              }
+            },
+            "overrides": [
+
+            ]
+          },
+          "options": {
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "orientation": "auto",
+            "textMode": "auto",
+            "colorMode": "background",
+            "graphMode": "area",
+            "justifyMode": "center"
+          },
+          "targets": [
+            {
+              "editorMode": "code",
+              "expr": "sum(flink_jobmanager_numRunningJobs{namespace=\"$namespace\"})",
+              "range": true,
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "type": "stat",
+          "title": "Registered TaskManagers",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "gridPos": {
+            "x": 12,
+            "y": 0,
+            "w": 6,
+            "h": 4
+          },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "mappings": [
+
+              ],
+              "color": {
+                "mode": "thresholds"
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "red",
+                    "value": 1
+                  }
+                ]
+              }
+            },
+            "overrides": [
+
+            ]
+          },
+          "options": {
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "orientation": "auto",
+            "textMode": "auto",
+            "colorMode": "background",
+            "graphMode": "area",
+            "justifyMode": "center"
+          },
+          "targets": [
+            {
+              "editorMode": "code",
+              "expr": "sum(flink_jobmanager_numRegisteredTaskManagers{namespace=\"$namespace\"})",
+              "range": true,
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "id": 4,
+          "type": "stat",
+          "title": "Failed Checkpoints",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "gridPos": {
+            "x": 18,
+            "y": 0,
+            "w": 6,
+            "h": 4
+          },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "mappings": [
+
+              ],
+              "color": {
+                "mode": "thresholds"
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "red",
+                    "value": 1
+                  }
+                ]
+              }
+            },
+            "overrides": [
+
+            ]
+          },
+          "options": {
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "orientation": "auto",
+            "textMode": "auto",
+            "colorMode": "background",
+            "graphMode": "area",
+            "justifyMode": "center"
+          },
+          "targets": [
+            {
+              "editorMode": "code",
+              "expr": "sum(flink_jobmanager_job_numberOfFailedCheckpoints{namespace=\"$namespace\"})",
+              "range": true,
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "id": 5,
+          "type": "timeseries",
+          "title": "Records Throughput",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "gridPos": {
+            "x": 0,
+            "y": 4,
+            "w": 12,
+            "h": 8
+          },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "ops",
+              "mappings": [
+
+              ]
+            },
+            "overrides": [
+
+            ]
+          },
+          "options": {
+            "legend": {
+              "displayMode": "table",
+              "placement": "bottom",
+              "calcs": [
+                "lastNotNull",
+                "max"
+              ]
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "none"
+            }
+          },
+          "targets": [
+            {
+              "editorMode": "code",
+              "expr": "sum(flink_taskmanager_job_task_numRecordsInPerSecond{namespace=\"$namespace\"}) by (task_name)",
+              "range": true,
+              "refId": "A",
+              "legendFormat": "in {{task_name}}"
+            },
+            {
+              "editorMode": "code",
+              "expr": "sum(flink_taskmanager_job_task_numRecordsOutPerSecond{namespace=\"$namespace\"}) by (task_name)",
+              "range": true,
+              "refId": "B",
+              "legendFormat": "out {{task_name}}"
+            }
+          ]
+        },
+        {
+          "id": 6,
+          "type": "timeseries",
+          "title": "Backpressure / Busy / Idle Time",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "gridPos": {
+            "x": 12,
+            "y": 4,
+            "w": 12,
+            "h": 8
+          },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "ms",
+              "mappings": [
+
+              ]
+            },
+            "overrides": [
+
+            ]
+          },
+          "options": {
+            "legend": {
+              "displayMode": "table",
+              "placement": "bottom",
+              "calcs": [
+                "lastNotNull",
+                "max"
+              ]
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "none"
+            }
+          },
+          "targets": [
+            {
+              "editorMode": "code",
+              "expr": "sum(flink_taskmanager_job_task_backPressuredTimeMsPerSecond{namespace=\"$namespace\"}) by (task_name)",
+              "range": true,
+              "refId": "A",
+              "legendFormat": "backpressured {{task_name}}"
+            },
+            {
+              "editorMode": "code",
+              "expr": "sum(flink_taskmanager_job_task_busyTimeMsPerSecond{namespace=\"$namespace\"}) by (task_name)",
+              "range": true,
+              "refId": "B",
+              "legendFormat": "busy {{task_name}}"
+            },
+            {
+              "editorMode": "code",
+              "expr": "sum(flink_taskmanager_job_task_idleTimeMsPerSecond{namespace=\"$namespace\"}) by (task_name)",
+              "range": true,
+              "refId": "C",
+              "legendFormat": "idle {{task_name}}"
+            }
+          ]
+        },
+        {
+          "id": 7,
+          "type": "timeseries",
+          "title": "Checkpoint Health",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "gridPos": {
+            "x": 0,
+            "y": 12,
+            "w": 12,
+            "h": 8
+          },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "ms",
+              "mappings": [
+
+              ]
+            },
+            "overrides": [
+
+            ]
+          },
+          "options": {
+            "legend": {
+              "displayMode": "table",
+              "placement": "bottom",
+              "calcs": [
+                "lastNotNull",
+                "max"
+              ]
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "none"
+            }
+          },
+          "targets": [
+            {
+              "editorMode": "code",
+              "expr": "flink_jobmanager_job_lastCheckpointDuration{namespace=\"$namespace\"}",
+              "range": true,
+              "refId": "A",
+              "legendFormat": "duration {{job_name}}"
+            },
+            {
+              "editorMode": "code",
+              "expr": "flink_jobmanager_job_numberOfInProgressCheckpoints{namespace=\"$namespace\"}",
+              "range": true,
+              "refId": "B",
+              "legendFormat": "in-progress {{job_name}}"
+            },
+            {
+              "editorMode": "code",
+              "expr": "flink_jobmanager_job_numberOfFailedCheckpoints{namespace=\"$namespace\"}",
+              "range": true,
+              "refId": "C",
+              "legendFormat": "failed {{job_name}}"
+            }
+          ]
+        },
+        {
+          "id": 8,
+          "type": "timeseries",
+          "title": "Checkpoint Size / Persisted Data",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "gridPos": {
+            "x": 12,
+            "y": 12,
+            "w": 12,
+            "h": 8
+          },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "bytes",
+              "mappings": [
+
+              ]
+            },
+            "overrides": [
+
+            ]
+          },
+          "options": {
+            "legend": {
+              "displayMode": "table",
+              "placement": "bottom",
+              "calcs": [
+                "lastNotNull",
+                "max"
+              ]
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "none"
+            }
+          },
+          "targets": [
+            {
+              "editorMode": "code",
+              "expr": "flink_jobmanager_job_lastCheckpointSize{namespace=\"$namespace\"}",
+              "range": true,
+              "refId": "A",
+              "legendFormat": "size {{job_name}}"
+            },
+            {
+              "editorMode": "code",
+              "expr": "flink_jobmanager_job_lastCheckpointPersistedData{namespace=\"$namespace\"}",
+              "range": true,
+              "refId": "B",
+              "legendFormat": "persisted {{job_name}}"
+            },
+            {
+              "editorMode": "code",
+              "expr": "flink_jobmanager_job_lastCheckpointProcessedData{namespace=\"$namespace\"}",
+              "range": true,
+              "refId": "C",
+              "legendFormat": "processed {{job_name}}"
+            }
+          ]
+        },
+        {
+          "id": 9,
+          "type": "timeseries",
+          "title": "JVM Heap Used",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "gridPos": {
+            "x": 0,
+            "y": 20,
+            "w": 12,
+            "h": 8
+          },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "bytes",
+              "mappings": [
+
+              ]
+            },
+            "overrides": [
+
+            ]
+          },
+          "options": {
+            "legend": {
+              "displayMode": "table",
+              "placement": "bottom",
+              "calcs": [
+                "lastNotNull",
+                "max"
+              ]
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "none"
+            }
+          },
+          "targets": [
+            {
+              "editorMode": "code",
+              "expr": "flink_jobmanager_Status_JVM_Memory_Heap_Used{namespace=\"$namespace\"}",
+              "range": true,
+              "refId": "A",
+              "legendFormat": "jobmanager {{pod}}"
+            },
+            {
+              "editorMode": "code",
+              "expr": "flink_taskmanager_Status_JVM_Memory_Heap_Used{namespace=\"$namespace\"}",
+              "range": true,
+              "refId": "B",
+              "legendFormat": "taskmanager {{pod}}"
+            }
+          ]
+        },
+        {
+          "id": 10,
+          "type": "timeseries",
+          "title": "CPU Load and GC Time",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "gridPos": {
+            "x": 12,
+            "y": 20,
+            "w": 12,
+            "h": 8
+          },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "mappings": [
+
+              ]
+            },
+            "overrides": [
+
+            ]
+          },
+          "options": {
+            "legend": {
+              "displayMode": "table",
+              "placement": "bottom",
+              "calcs": [
+                "lastNotNull",
+                "max"
+              ]
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "none"
+            }
+          },
+          "targets": [
+            {
+              "editorMode": "code",
+              "expr": "flink_jobmanager_Status_JVM_CPU_Load{namespace=\"$namespace\"}",
+              "range": true,
+              "refId": "A",
+              "legendFormat": "jm cpu {{pod}}"
+            },
+            {
+              "editorMode": "code",
+              "expr": "flink_taskmanager_Status_JVM_CPU_Load{namespace=\"$namespace\"}",
+              "range": true,
+              "refId": "B",
+              "legendFormat": "tm cpu {{pod}}"
+            },
+            {
+              "editorMode": "code",
+              "expr": "flink_jobmanager_Status_JVM_GarbageCollector_All_TimeMsPerSecond{namespace=\"$namespace\"}",
+              "range": true,
+              "refId": "C",
+              "legendFormat": "jm gc {{pod}}"
+            },
+            {
+              "editorMode": "code",
+              "expr": "flink_taskmanager_Status_JVM_GarbageCollector_All_TimeMsPerSecond{namespace=\"$namespace\"}",
+              "range": true,
+              "refId": "D",
+              "legendFormat": "tm gc {{pod}}"
+            }
+          ]
+        }
+      ],
+      "refresh": "30s",
+      "schemaVersion": 39,
+      "style": "dark",
+      "tags": [
+        "cdc",
+        "lakehouse",
+        "flink"
+      ],
+      "templating": {
+        "list": [
+          {
+            "name": "DS_PROMETHEUS",
+            "type": "datasource",
+            "query": "prometheus",
+            "refresh": 1,
+            "label": "Datasource",
+            "hide": 0,
+            "includeAll": false,
+            "multi": false,
+            "options": [
+
+            ],
+            "current": {
+              "selected": true,
+              "text": "Prometheus",
+              "value": "prometheus"
+            }
+          },
+          {
+            "name": "namespace",
+            "type": "custom",
+            "query": "data",
+            "label": "Namespace",
+            "hide": 0,
+            "includeAll": false,
+            "multi": false,
+            "options": [
+              {
+                "selected": true,
+                "text": "data",
+                "value": "data"
+              }
+            ],
+            "current": {
+              "selected": true,
+              "text": "data",
+              "value": "data"
+            }
+          }
+        ]
+      },
+      "time": {
+        "from": "now-3h",
+        "to": "now"
+      },
+      "timezone": "",
+      "title": "CDC Lakehouse / Flink Best Practice",
+      "uid": "cdc-lakehouse-flink",
+      "version": 1,
+      "weekStart": ""
+    }

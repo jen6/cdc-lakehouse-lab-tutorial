@@ -1,0 +1,19 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - github.com/kubeflow/pipelines/manifests/kustomize/env/dev?ref=2.16.1
+  - cache-cert-issuer.yaml
+  - cache-cert.yaml
+  - cache-webhook-config.yaml
+
+patches:
+  - path: pipeline-runner-irsa.yaml
+  - path: argo-irsa.yaml
+  - path: ml-pipeline-irsa.yaml
+  - path: mysql-pvc-storageclass.yaml
+  - path: seaweedfs-pvc-storageclass.yaml
+  - path: cache-server-cert-filenames.yaml
+  - path: disable-proxy-agent.yaml
+  - path: delete-cache-deployer-deployment.yaml
+  - path: delete-cache-deployer-role.yaml
+  - path: delete-cache-deployer-rolebinding.yaml

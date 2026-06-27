@@ -1,0 +1,713 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboard-cdc-lakehouse-msk
+  namespace: platform
+  labels:
+    grafana_dashboard: '1'
+data:
+  cdc-lakehouse-msk.json: |-
+    {
+      "annotations": {
+        "list": [
+          {
+            "builtIn": 1,
+            "datasource": {
+              "type": "grafana",
+              "uid": "-- Grafana --"
+            },
+            "enable": true,
+            "hide": true,
+            "iconColor": "rgba(0, 211, 255, 1)",
+            "name": "Annotations & Alerts",
+            "type": "dashboard"
+          }
+        ]
+      },
+      "editable": true,
+      "fiscalYearStartMonth": 0,
+      "graphTooltip": 0,
+      "id": null,
+      "links": [
+
+      ],
+      "liveNow": false,
+      "panels": [
+        {
+          "id": 1,
+          "type": "stat",
+          "title": "MSK Brokers Scraped",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "gridPos": {
+            "x": 0,
+            "y": 0,
+            "w": 6,
+            "h": 4
+          },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "mappings": [
+
+              ],
+              "color": {
+                "mode": "thresholds"
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "red",
+                    "value": 1
+                  }
+                ]
+              }
+            },
+            "overrides": [
+
+            ]
+          },
+          "options": {
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "orientation": "auto",
+            "textMode": "auto",
+            "colorMode": "background",
+            "graphMode": "area",
+            "justifyMode": "center"
+          },
+          "targets": [
+            {
+              "editorMode": "code",
+              "expr": "count(aws_kafka_cpu_user_average)",
+              "range": true,
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "type": "stat",
+          "title": "Under Replicated Partitions",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "gridPos": {
+            "x": 6,
+            "y": 0,
+            "w": 6,
+            "h": 4
+          },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "mappings": [
+
+              ],
+              "color": {
+                "mode": "thresholds"
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "red",
+                    "value": 1
+                  }
+                ]
+              }
+            },
+            "overrides": [
+
+            ]
+          },
+          "options": {
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "orientation": "auto",
+            "textMode": "auto",
+            "colorMode": "background",
+            "graphMode": "area",
+            "justifyMode": "center"
+          },
+          "targets": [
+            {
+              "editorMode": "code",
+              "expr": "max(aws_kafka_under_replicated_partitions_maximum)",
+              "range": true,
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "type": "stat",
+          "title": "Offline Partitions",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "gridPos": {
+            "x": 12,
+            "y": 0,
+            "w": 6,
+            "h": 4
+          },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "mappings": [
+
+              ],
+              "color": {
+                "mode": "thresholds"
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "red",
+                    "value": 1
+                  }
+                ]
+              }
+            },
+            "overrides": [
+
+            ]
+          },
+          "options": {
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "orientation": "auto",
+            "textMode": "auto",
+            "colorMode": "background",
+            "graphMode": "area",
+            "justifyMode": "center"
+          },
+          "targets": [
+            {
+              "editorMode": "code",
+              "expr": "max(aws_kafka_offline_partitions_count_maximum)",
+              "range": true,
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "id": 4,
+          "type": "stat",
+          "title": "Active Controllers",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "gridPos": {
+            "x": 18,
+            "y": 0,
+            "w": 6,
+            "h": 4
+          },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "mappings": [
+
+              ],
+              "color": {
+                "mode": "thresholds"
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "red",
+                    "value": 1
+                  }
+                ]
+              }
+            },
+            "overrides": [
+
+            ]
+          },
+          "options": {
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "orientation": "auto",
+            "textMode": "auto",
+            "colorMode": "background",
+            "graphMode": "area",
+            "justifyMode": "center"
+          },
+          "targets": [
+            {
+              "editorMode": "code",
+              "expr": "sum(aws_kafka_active_controller_count_average)",
+              "range": true,
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "id": 5,
+          "type": "timeseries",
+          "title": "Broker CPU",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "gridPos": {
+            "x": 0,
+            "y": 4,
+            "w": 12,
+            "h": 8
+          },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "percent",
+              "mappings": [
+
+              ]
+            },
+            "overrides": [
+
+            ]
+          },
+          "options": {
+            "legend": {
+              "displayMode": "table",
+              "placement": "bottom",
+              "calcs": [
+                "lastNotNull",
+                "max"
+              ]
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "none"
+            }
+          },
+          "targets": [
+            {
+              "editorMode": "code",
+              "expr": "aws_kafka_cpu_user_average",
+              "range": true,
+              "refId": "A",
+              "legendFormat": "user broker {{dimension_Broker_ID}}"
+            },
+            {
+              "editorMode": "code",
+              "expr": "aws_kafka_cpu_system_average",
+              "range": true,
+              "refId": "B",
+              "legendFormat": "system broker {{dimension_Broker_ID}}"
+            },
+            {
+              "editorMode": "code",
+              "expr": "aws_kafka_cpu_idle_average",
+              "range": true,
+              "refId": "C",
+              "legendFormat": "idle broker {{dimension_Broker_ID}}"
+            }
+          ]
+        },
+        {
+          "id": 6,
+          "type": "timeseries",
+          "title": "Broker Memory and Disk",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "gridPos": {
+            "x": 12,
+            "y": 4,
+            "w": 12,
+            "h": 8
+          },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "percent",
+              "mappings": [
+
+              ]
+            },
+            "overrides": [
+
+            ]
+          },
+          "options": {
+            "legend": {
+              "displayMode": "table",
+              "placement": "bottom",
+              "calcs": [
+                "lastNotNull",
+                "max"
+              ]
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "none"
+            }
+          },
+          "targets": [
+            {
+              "editorMode": "code",
+              "expr": "aws_kafka_memory_used_average",
+              "range": true,
+              "refId": "A",
+              "legendFormat": "memory broker {{dimension_Broker_ID}}"
+            },
+            {
+              "editorMode": "code",
+              "expr": "aws_kafka_kafka_data_logs_disk_used_average",
+              "range": true,
+              "refId": "B",
+              "legendFormat": "data disk broker {{dimension_Broker_ID}}"
+            }
+          ]
+        },
+        {
+          "id": 7,
+          "type": "timeseries",
+          "title": "Kafka Throughput",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "gridPos": {
+            "x": 0,
+            "y": 12,
+            "w": 12,
+            "h": 8
+          },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "mappings": [
+
+              ]
+            },
+            "overrides": [
+
+            ]
+          },
+          "options": {
+            "legend": {
+              "displayMode": "table",
+              "placement": "bottom",
+              "calcs": [
+                "lastNotNull",
+                "max"
+              ]
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "none"
+            }
+          },
+          "targets": [
+            {
+              "editorMode": "code",
+              "expr": "aws_kafka_bytes_in_per_sec_average",
+              "range": true,
+              "refId": "A",
+              "legendFormat": "bytes in broker {{dimension_Broker_ID}}"
+            },
+            {
+              "editorMode": "code",
+              "expr": "aws_kafka_bytes_out_per_sec_average",
+              "range": true,
+              "refId": "B",
+              "legendFormat": "bytes out broker {{dimension_Broker_ID}}"
+            },
+            {
+              "editorMode": "code",
+              "expr": "aws_kafka_messages_in_per_sec_average",
+              "range": true,
+              "refId": "C",
+              "legendFormat": "messages in broker {{dimension_Broker_ID}}"
+            }
+          ]
+        },
+        {
+          "id": 8,
+          "type": "timeseries",
+          "title": "Partition Health",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "gridPos": {
+            "x": 12,
+            "y": 12,
+            "w": 12,
+            "h": 8
+          },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "mappings": [
+
+              ]
+            },
+            "overrides": [
+
+            ]
+          },
+          "options": {
+            "legend": {
+              "displayMode": "table",
+              "placement": "bottom",
+              "calcs": [
+                "lastNotNull",
+                "max"
+              ]
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "none"
+            }
+          },
+          "targets": [
+            {
+              "editorMode": "code",
+              "expr": "aws_kafka_under_replicated_partitions_maximum",
+              "range": true,
+              "refId": "A",
+              "legendFormat": "under replicated {{dimension_Broker_ID}}"
+            },
+            {
+              "editorMode": "code",
+              "expr": "aws_kafka_under_min_isr_partition_count_maximum",
+              "range": true,
+              "refId": "B",
+              "legendFormat": "under min ISR {{dimension_Broker_ID}}"
+            },
+            {
+              "editorMode": "code",
+              "expr": "aws_kafka_offline_partitions_count_maximum",
+              "range": true,
+              "refId": "C",
+              "legendFormat": "offline {{dimension_Broker_ID}}"
+            }
+          ]
+        },
+        {
+          "id": 9,
+          "type": "timeseries",
+          "title": "Cluster Scale",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "gridPos": {
+            "x": 0,
+            "y": 20,
+            "w": 12,
+            "h": 8
+          },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "mappings": [
+
+              ]
+            },
+            "overrides": [
+
+            ]
+          },
+          "options": {
+            "legend": {
+              "displayMode": "table",
+              "placement": "bottom",
+              "calcs": [
+                "lastNotNull",
+                "max"
+              ]
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "none"
+            }
+          },
+          "targets": [
+            {
+              "editorMode": "code",
+              "expr": "aws_kafka_global_topic_count_average",
+              "range": true,
+              "refId": "A",
+              "legendFormat": "topics {{dimension_Broker_ID}}"
+            },
+            {
+              "editorMode": "code",
+              "expr": "aws_kafka_global_partition_count_average",
+              "range": true,
+              "refId": "B",
+              "legendFormat": "partitions {{dimension_Broker_ID}}"
+            }
+          ]
+        },
+        {
+          "id": 10,
+          "type": "timeseries",
+          "title": "Consumer Lag",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "gridPos": {
+            "x": 12,
+            "y": 20,
+            "w": 12,
+            "h": 8
+          },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "mappings": [
+
+              ]
+            },
+            "overrides": [
+
+            ]
+          },
+          "options": {
+            "legend": {
+              "displayMode": "table",
+              "placement": "bottom",
+              "calcs": [
+                "lastNotNull",
+                "max"
+              ]
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "none"
+            }
+          },
+          "targets": [
+            {
+              "editorMode": "code",
+              "expr": "aws_kafka_max_offset_lag_maximum",
+              "range": true,
+              "refId": "A",
+              "legendFormat": "max {{dimension_Consumer_Group}} {{dimension_Topic}}"
+            },
+            {
+              "editorMode": "code",
+              "expr": "aws_kafka_sum_offset_lag_maximum",
+              "range": true,
+              "refId": "B",
+              "legendFormat": "sum {{dimension_Consumer_Group}} {{dimension_Topic}}"
+            }
+          ]
+        }
+      ],
+      "refresh": "30s",
+      "schemaVersion": 39,
+      "style": "dark",
+      "tags": [
+        "cdc",
+        "lakehouse",
+        "msk",
+        "kafka",
+        "aws"
+      ],
+      "templating": {
+        "list": [
+          {
+            "name": "DS_PROMETHEUS",
+            "type": "datasource",
+            "query": "prometheus",
+            "refresh": 1,
+            "label": "Datasource",
+            "hide": 0,
+            "includeAll": false,
+            "multi": false,
+            "options": [
+
+            ],
+            "current": {
+              "selected": true,
+              "text": "Prometheus",
+              "value": "prometheus"
+            }
+          },
+          {
+            "name": "namespace",
+            "type": "custom",
+            "query": "data",
+            "label": "Namespace",
+            "hide": 0,
+            "includeAll": false,
+            "multi": false,
+            "options": [
+              {
+                "selected": true,
+                "text": "data",
+                "value": "data"
+              }
+            ],
+            "current": {
+              "selected": true,
+              "text": "data",
+              "value": "data"
+            }
+          }
+        ]
+      },
+      "time": {
+        "from": "now-3h",
+        "to": "now"
+      },
+      "timezone": "",
+      "title": "CDC Lakehouse / MSK Kafka Best Practice",
+      "uid": "cdc-lakehouse-msk",
+      "version": 1,
+      "weekStart": ""
+    }

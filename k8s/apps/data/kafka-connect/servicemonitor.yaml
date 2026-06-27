@@ -1,0 +1,18 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: kafka-connect
+  namespace: data
+  labels:
+    release: kube-prometheus-stack
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: kafka-connect
+  namespaceSelector:
+    matchNames:
+      - data
+  endpoints:
+    - port: metrics
+      path: /metrics
+      interval: 30s

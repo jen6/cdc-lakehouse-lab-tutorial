@@ -1,0 +1,42 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kube-prometheus-stack
+  namespace: argocd
+spec:
+  project: platform
+  source:
+    repoURL: https://prometheus-community.github.io/helm-charts
+    chart: kube-prometheus-stack
+    targetRevision: 61.9.0
+    helm:
+      releaseName: kube-prometheus-stack
+      values: |
+        grafana:
+          enabled: true
+          serviceAccount:
+            annotations:
+              eks.amazonaws.com/role-arn: REPLACE_WITH_PLATFORM_WORKLOADS_ROLE_ARN
+              eks.amazonaws.com/sts-regional-endpoints: "true"
+          additionalDataSources:
+            - name: CloudWatch
+              uid: cloudwatch
+              type: cloudwatch
+              access: proxy
+              isDefault: false
+              jsonData:
+                authType: default
+                defaultRegion: ap-northeast-2
+        prometheus:
+          prometheusSpec:
+            retention: 7d
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: platform
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true

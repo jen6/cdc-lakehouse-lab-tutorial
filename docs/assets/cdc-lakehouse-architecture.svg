@@ -1,0 +1,188 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="780" viewBox="0 0 1440 780" role="img" aria-labelledby="title desc">
+  <title id="title">AWS CDC lakehouse architecture</title>
+  <desc id="desc">Uniform six-step architecture diagram for a CDC lakehouse: RDS MySQL, Kafka Connect with Debezium, MSK Kafka, Flink, Iceberg on S3 and Glue, and Trino plus Kubeflow consumers.</desc>
+  <defs>
+    <style>
+      .bg { fill: #f6f8fb; }
+      .panel { fill: #ffffff; stroke: #d5dce8; stroke-width: 2; }
+      .stage { fill: #ffffff; stroke-width: 1.8; filter: url(#shadow); }
+      .source { stroke: #f2a63b; }
+      .capture { stroke: #7fa2ff; }
+      .stream { stroke: #ef9587; }
+      .process { stroke: #7fa2ff; }
+      .lake { stroke: #94b866; }
+      .consume { stroke: #b7a2ff; }
+      .fill-source { fill: #fff7e8; }
+      .fill-capture { fill: #eef4ff; }
+      .fill-stream { fill: #fff1ee; }
+      .fill-process { fill: #eef4ff; }
+      .fill-lake { fill: #f2f8ea; }
+      .fill-consume { fill: #f5f1ff; }
+      .title { fill: #172033; font: 800 31px Arial, sans-serif; }
+      .subtitle { fill: #607089; font: 15px Arial, sans-serif; }
+      .eyebrow { fill: #53627a; font: 800 11px Arial, sans-serif; letter-spacing: 1px; }
+      .stage-title { fill: #172033; font: 800 18px Arial, sans-serif; }
+      .stage-text { fill: #5d6b82; font: 13px Arial, sans-serif; }
+      .tiny { fill: #6c7a91; font: 11px Arial, sans-serif; }
+      .step { fill: #2563b8; }
+      .step-text { fill: #ffffff; font: 800 14px Arial, sans-serif; }
+      .arrow { fill: none; stroke: #2563b8; stroke-width: 3.4; marker-end: url(#arrow); }
+      .dash { fill: none; stroke: #708196; stroke-width: 2.2; stroke-dasharray: 7 6; marker-end: url(#arrowGray); }
+      .label { fill: #ffffff; stroke: #d5dce8; }
+      .label-text { fill: #243b5a; font: 800 11px Arial, sans-serif; }
+      .note { fill: #f8fafc; stroke: #d8dee9; filter: url(#softShadow); }
+      .note-title { fill: #172033; font: 800 13px Arial, sans-serif; }
+      .note-text { fill: #5d6b82; font: 12px Arial, sans-serif; }
+      .divider { stroke: #dbe2ec; stroke-width: 1.4; }
+    </style>
+    <filter id="shadow" x="-15%" y="-18%" width="130%" height="136%">
+      <feDropShadow dx="0" dy="10" stdDeviation="10" flood-color="#172033" flood-opacity="0.13"/>
+    </filter>
+    <filter id="softShadow" x="-12%" y="-18%" width="124%" height="136%">
+      <feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#172033" flood-opacity="0.08"/>
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 Z" fill="#2563b8"/>
+    </marker>
+    <marker id="arrowGray" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 Z" fill="#708196"/>
+    </marker>
+  </defs>
+
+  <rect class="bg" width="1440" height="780"/>
+  <text x="58" y="54" class="title">AWS CDC Lakehouse Lab</text>
+  <text x="58" y="82" class="subtitle">A realtime commerce workload continuously writes to MySQL, then CDC carries each change into Iceberg tables.</text>
+
+  <rect x="40" y="112" width="1360" height="600" rx="22" class="panel"/>
+  <text x="70" y="148" class="eyebrow">MAIN DATA FLOW</text>
+  <text x="70" y="174" class="stage-text">Six equal stages show the primary path. The workload generator below keeps the source database changing in realtime.</text>
+
+  <!-- Stage cards: all same size -->
+  <g transform="translate(65 245)">
+    <rect width="190" height="210" rx="18" class="stage source fill-source"/>
+    <circle cx="27" cy="29" r="16" class="step"/>
+    <text x="23" y="34" class="step-text">1</text>
+    <text x="55" y="33" class="eyebrow">SOURCE</text>
+    <image href="icons/aws/amazon-rds.svg" x="65" y="58" width="60" height="60"/>
+    <text x="95" y="140" text-anchor="middle" class="stage-title">RDS MySQL</text>
+    <text x="95" y="166" text-anchor="middle" class="stage-text">live commerce DB</text>
+    <text x="95" y="185" text-anchor="middle" class="stage-text">orders / payments</text>
+  </g>
+
+  <g transform="translate(285 245)">
+    <rect width="190" height="210" rx="18" class="stage capture fill-capture"/>
+    <circle cx="27" cy="29" r="16" class="step"/>
+    <text x="23" y="34" class="step-text">2</text>
+    <text x="55" y="33" class="eyebrow">CAPTURE</text>
+    <rect x="65" y="58" width="60" height="60" rx="12" fill="#172033"/>
+    <image href="icons/oss/apache-kafka.png" x="70" y="63" width="50" height="50"/>
+    <text x="95" y="140" text-anchor="middle" class="stage-title">Kafka Connect</text>
+    <text x="95" y="166" text-anchor="middle" class="stage-text">Debezium MySQL</text>
+    <text x="95" y="185" text-anchor="middle" class="stage-text">binlog reader</text>
+  </g>
+
+  <g transform="translate(505 245)">
+    <rect width="190" height="210" rx="18" class="stage stream fill-stream"/>
+    <circle cx="27" cy="29" r="16" class="step"/>
+    <text x="23" y="34" class="step-text">3</text>
+    <text x="55" y="33" class="eyebrow">EVENT BUS</text>
+    <image href="icons/aws/amazon-msk.svg" x="65" y="58" width="60" height="60"/>
+    <text x="95" y="140" text-anchor="middle" class="stage-title">MSK Kafka</text>
+    <text x="95" y="166" text-anchor="middle" class="stage-text">CDC topics</text>
+    <text x="95" y="185" text-anchor="middle" class="stage-text">offsets / replay</text>
+  </g>
+
+  <g transform="translate(725 245)">
+    <rect width="190" height="210" rx="18" class="stage process fill-process"/>
+    <circle cx="27" cy="29" r="16" class="step"/>
+    <text x="23" y="34" class="step-text">4</text>
+    <text x="55" y="33" class="eyebrow">PROCESS</text>
+    <image href="icons/oss/flink.png" x="61" y="54" width="68" height="68"/>
+    <text x="95" y="140" text-anchor="middle" class="stage-title">Flink</text>
+    <text x="95" y="166" text-anchor="middle" class="stage-text">dedupe / upsert</text>
+    <text x="95" y="185" text-anchor="middle" class="stage-text">stream writes</text>
+  </g>
+
+  <g transform="translate(945 245)">
+    <rect width="190" height="210" rx="18" class="stage lake fill-lake"/>
+    <circle cx="27" cy="29" r="16" class="step"/>
+    <text x="23" y="34" class="step-text">5</text>
+    <text x="55" y="33" class="eyebrow">LAKEHOUSE</text>
+    <image href="icons/aws/amazon-s3.svg" x="39" y="58" width="54" height="54"/>
+    <image href="icons/aws/aws-glue.svg" x="98" y="58" width="54" height="54"/>
+    <text x="95" y="140" text-anchor="middle" class="stage-title">Iceberg</text>
+    <text x="95" y="166" text-anchor="middle" class="stage-text">S3 warehouse</text>
+    <text x="95" y="185" text-anchor="middle" class="stage-text">Glue catalog</text>
+  </g>
+
+  <g transform="translate(1165 245)">
+    <rect width="190" height="210" rx="18" class="stage consume fill-consume"/>
+    <circle cx="27" cy="29" r="16" class="step"/>
+    <text x="23" y="34" class="step-text">6</text>
+    <text x="55" y="33" class="eyebrow">CONSUME</text>
+    <rect x="43" y="60" width="48" height="48" rx="10" fill="#172033"/>
+    <image href="icons/oss/trino.svg" x="48" y="77" width="38" height="14"/>
+    <image href="icons/oss/kubeflow.svg" x="100" y="58" width="52" height="52"/>
+    <text x="95" y="140" text-anchor="middle" class="stage-title">Analytics</text>
+    <text x="95" y="166" text-anchor="middle" class="stage-text">Trino SQL</text>
+    <text x="95" y="185" text-anchor="middle" class="stage-text">Kubeflow ML</text>
+  </g>
+
+  <!-- Primary arrows -->
+  <path class="arrow" d="M255 350 H285"/>
+  <rect x="260" y="321" width="50" height="22" rx="11" class="label"/>
+  <text x="270" y="336" class="label-text">binlog</text>
+
+  <path class="arrow" d="M475 350 H505"/>
+  <rect x="480" y="321" width="50" height="22" rx="11" class="label"/>
+  <text x="490" y="336" class="label-text">events</text>
+
+  <path class="arrow" d="M695 350 H725"/>
+  <rect x="700" y="321" width="48" height="22" rx="11" class="label"/>
+  <text x="710" y="336" class="label-text">topics</text>
+
+  <path class="arrow" d="M915 350 H945"/>
+  <rect x="921" y="321" width="44" height="22" rx="11" class="label"/>
+  <text x="932" y="336" class="label-text">write</text>
+
+  <path class="arrow" d="M1135 350 H1165"/>
+  <rect x="1136" y="321" width="58" height="22" rx="11" class="label"/>
+  <text x="1146" y="336" class="label-text">query</text>
+
+  <!-- Supporting details row -->
+  <g transform="translate(75 535)">
+    <rect width="380" height="80" rx="16" class="note"/>
+    <image href="icons/aws/amazon-eks.svg" x="22" y="22" width="36" height="36"/>
+    <text x="74" y="30" class="note-title">Realtime workload generator</text>
+    <text x="74" y="51" class="note-text">Continuously inserts and updates orders, payments,</text>
+    <text x="74" y="68" class="note-text">shipments, and inventory so CDC never sits idle.</text>
+  </g>
+
+  <path class="dash" d="M170 535 C150 505 150 480 160 455"/>
+  <rect x="102" y="490" width="112" height="22" rx="11" class="label"/>
+  <text x="113" y="505" class="label-text">continuous writes</text>
+
+  <g transform="translate(495 535)">
+    <rect width="310" height="80" rx="16" class="note"/>
+    <rect x="22" y="22" width="36" height="36" rx="8" fill="#172033"/>
+    <image href="icons/oss/debezium.svg" x="27" y="33" width="26" height="8"/>
+    <text x="74" y="30" class="note-title">CDC contract</text>
+    <text x="74" y="51" class="note-text">Insert, update, delete, and schema-change</text>
+    <text x="74" y="68" class="note-text">events remain replayable in Kafka.</text>
+  </g>
+
+  <g transform="translate(845 535)">
+    <rect width="330" height="80" rx="16" class="note"/>
+    <image href="icons/aws/amazon-eks.svg" x="22" y="22" width="36" height="36"/>
+    <text x="74" y="30" class="note-title">Platform management</text>
+    <text x="74" y="51" class="note-text">OpenTofu owns AWS resources.</text>
+    <text x="74" y="68" class="note-text">Argo CD owns EKS workloads.</text>
+  </g>
+
+  <g transform="translate(930 660)">
+    <circle cx="8" cy="0" r="5" fill="#2563b8"/>
+    <text x="22" y="5" class="tiny">primary data flow</text>
+    <line x1="130" y1="0" x2="170" y2="0" stroke="#708196" stroke-width="2.2" stroke-dasharray="7 6"/>
+    <text x="184" y="5" class="tiny">supporting operational detail</text>
+  </g>
+</svg>

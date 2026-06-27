@@ -1,0 +1,17 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cache-server
+  namespace: kubeflow
+spec:
+  template:
+    spec:
+      volumes:
+        - name: webhook-tls-certs
+          secret:
+            secretName: webhook-server-tls
+            items:
+              - key: tls.crt
+                path: cert.pem
+              - key: tls.key
+                path: key.pem

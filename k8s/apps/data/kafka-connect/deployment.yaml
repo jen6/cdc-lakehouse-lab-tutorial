@@ -1,0 +1,100 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kafka-connect
+  namespace: data
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: kafka-connect
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: kafka-connect
+    spec:
+      serviceAccountName: kafka-connect
+      initContainers:
+        - name: download-jmx-exporter
+          image: curlimages/curl:8.10.1
+          command:
+            - sh
+            - -ec
+            - |
+              curl -fsSL \
+                https://repo1.maven.org/maven2/io/prometheus/jmx/jmx_prometheus_javaagent/0.20.0/jmx_prometheus_javaagent-0.20.0.jar \
+                -o /jmx/jmx_prometheus_javaagent.jar
+          volumeMounts:
+            - name: jmx-exporter-agent
+              mountPath: /jmx
+      containers:
+        - name: connect
+          image: debezium/connect:2.7.3.Final
+          ports:
+            - containerPort: 8083
+              name: http
+            - containerPort: 9404
+              name: metrics
+          env:
+            - name: BOOTSTRAP_SERVERS
+              valueFrom:
+                configMapKeyRef:
+                  name: kafka-connect-config
+                  key: bootstrap.servers
+            - name: GROUP_ID
+              valueFrom:
+                configMapKeyRef:
+                  name: kafka-connect-config
+                  key: group.id
+            - name: CONFIG_STORAGE_TOPIC
+              valueFrom:
+                configMapKeyRef:
+                  name: kafka-connect-config
+                  key: config.storage.topic
+            - name: OFFSET_STORAGE_TOPIC
+              valueFrom:
+                configMapKeyRef:
+                  name: kafka-connect-config
+                  key: offset.storage.topic
+            - name: STATUS_STORAGE_TOPIC
+              valueFrom:
+                configMapKeyRef:
+                  name: kafka-connect-config
+                  key: status.storage.topic
+            - name: KEY_CONVERTER
+              value: org.apache.kafka.connect.json.JsonConverter
+            - name: VALUE_CONVERTER
+              value: org.apache.kafka.connect.json.JsonConverter
+            - name: KEY_CONVERTER_SCHEMAS_ENABLE
+              value: "false"
+            - name: VALUE_CONVERTER_SCHEMAS_ENABLE
+              value: "false"
+            - name: CONNECT_PRODUCER_COMPRESSION_TYPE
+              value: lz4
+            - name: KAFKA_OPTS
+              value: -javaagent:/opt/jmx/jmx_prometheus_javaagent.jar=9404:/etc/kafka-connect-jmx/jmx-exporter.yaml
+          volumeMounts:
+            - name: jmx-exporter-agent
+              mountPath: /opt/jmx
+              readOnly: true
+            - name: kafka-connect-jmx
+              mountPath: /etc/kafka-connect-jmx
+              readOnly: true
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 20
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 60
+            periodSeconds: 20
+      volumes:
+        - name: jmx-exporter-agent
+          emptyDir: {}
+        - name: kafka-connect-jmx
+          configMap:
+            name: kafka-connect-jmx

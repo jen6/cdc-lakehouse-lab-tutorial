@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kubeflow-pipelines-install-note
+  namespace: ml
+data:
+  note: |
+    This placeholder keeps Kubeflow in the GitOps inventory without installing
+    the full distribution by default. Replace this kustomization with the
+    Kubeflow Pipelines standalone manifests after the base CDC path is verified.
+    Official standalone install path:
+    github.com/kubeflow/pipelines/manifests/kustomize/env/dev?ref=2.16.1
