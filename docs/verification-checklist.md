@@ -43,8 +43,10 @@ scaffold stage.
 - Flink checkpointing succeeds.
 - S3 contains Iceberg metadata and data files under `warehouse/`.
 - Glue contains `lab_bronze`, `lab_silver`, and `lab_gold`.
-- Delete and update events are visible in Bronze and correctly materialized in
-  Silver.
+- Insert and update events for `commerce.orders` are visible in Bronze and
+  correctly materialized in Silver.
+- Delete events are produced by the generator for `commerce.order_items`; the
+  current Flink tutorial job does not yet materialize that topic into Iceberg.
 
 ## Query
 
@@ -52,11 +54,11 @@ scaffold stage.
 - These queries work:
 
 ```sql
-SELECT count(*) FROM iceberg.lab_bronze.orders_cdc;
+SELECT count(*) FROM iceberg.lab_bronze.orders_cdc_events;
 SELECT count(*) FROM iceberg.lab_silver.orders_current;
-SELECT * FROM iceberg.lab_gold.revenue_10m ORDER BY window_start DESC LIMIT 10;
-SELECT * FROM iceberg.lab_gold.low_stock ORDER BY quantity ASC LIMIT 20;
-SELECT * FROM iceberg.lab_gold.delayed_orders LIMIT 20;
+SELECT *
+FROM iceberg.lab_gold.order_revenue_by_status
+ORDER BY gross_amount DESC;
 ```
 
 ## ML/Experiment

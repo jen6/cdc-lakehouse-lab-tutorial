@@ -23,18 +23,10 @@ tofu -chdir=infra/opentofu output platform_workloads_role_arn
 tofu -chdir=infra/opentofu output ml_workloads_role_arn
 ```
 
-Kafka can run in two modes:
-
-- `msk_mode = "provisioned"` keeps broker-level controls and is the current
-  default for this lab.
-- `msk_mode = "serverless"` removes broker sizing work and is better for
-  intermittent practice. Serverless uses IAM client authentication, so Kafka
-  Connect and Flink images/configs must include AWS MSK IAM auth support before
-  the CDC jobs can run against it.
-
-Changing `msk_mode` on an existing environment replaces the Kafka cluster. Run a
-plan first and switch only when Kafka topics do not contain data you need to
-preserve.
+This tutorial documents the provisioned MSK path. That keeps broker sizing,
+replication, storage, and broker metrics visible while you practice CDC
+operations. Serverless MSK is outside this tutorial path because it changes the
+Kafka client authentication work for Kafka Connect and Flink.
 
 ## 2. Configure kubeconfig manually
 

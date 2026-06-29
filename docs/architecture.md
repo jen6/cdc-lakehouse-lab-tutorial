@@ -43,13 +43,16 @@ S3 Iceberg warehouse + Glue Catalog
 
 ## Data Contract
 
-Bronze keeps raw Debezium envelopes. Silver is keyed current-state data. Gold is
-query-shaped analytical data.
+Bronze keeps flattened order CDC events derived from Debezium envelopes. Silver
+is keyed current-state data. Gold is query-shaped analytical data.
 
 ```text
-bronze.orders_cdc     raw before/after/op/source/ts_ms
-silver.orders_current primary-key upserted current order state
-gold.revenue_10m      recent revenue aggregates
-gold.low_stock        inventory risk view
-gold.delayed_orders   orders paid but not shipped in SLA
+lab_bronze.orders_cdc_events       flattened order events with op/is_deleted/event_ts
+lab_silver.orders_current          primary-key upserted current order state
+lab_gold.order_revenue_by_status   revenue and order count by current order status
 ```
+
+The first tutorial job materializes `commerce.orders` end to end. Debezium also
+captures `commerce.order_items`, `commerce.inventory`, `payment.payments`, and
+`logistics.shipments` so later exercises can add item, stock, payment, and
+shipment lakehouse tables without changing the source connector.
