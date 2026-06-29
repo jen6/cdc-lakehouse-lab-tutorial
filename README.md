@@ -7,6 +7,42 @@ CDC data platform:
 
 Diagram source/export: [SVG](docs/assets/cdc-lakehouse-architecture.svg), [draw.io companion](docs/diagrams/cdc-lakehouse-architecture.drawio).
 
+## Quick Start
+
+This tutorial repository intentionally does not commit `k8s/rendered/`.
+Generate it after OpenTofu creates environment-specific outputs such as ECR
+image URLs, IAM role ARNs, S3 bucket names, and Kafka bootstrap brokers.
+
+```bash
+LAB_ID=tutorial-$USER scripts/labctl.sh init
+scripts/labctl.sh plan
+scripts/labctl.sh deploy
+```
+
+The deploy command applies OpenTofu, builds and pushes the source generator and
+Flink runtime images, renders `k8s/rendered/`, commits and pushes that rendered
+overlay, installs Argo CD, configures private-repo access with a lab deploy key,
+and applies the rendered root application.
+
+```bash
+scripts/labctl.sh status
+```
+
+If you are using Codex, invoke the bundled `cdc-lakehouse-lab` setup skill
+instead of manually stepping through every command. The skill follows the same
+deployment path, but guides the run as an operator workflow:
+
+1. Checks required local tools and AWS/GitHub access.
+2. Creates or reuses `infra/opentofu/terraform.tfvars` with a unique `LAB_ID`.
+3. Runs the OpenTofu plan/deploy flow.
+4. Builds and pushes the tutorial runtime images.
+5. Renders `k8s/rendered/`, commits it, and pushes it for Argo CD.
+6. Installs/configures Argo CD and applies the rendered root app.
+7. Runs status checks for Argo CD applications, data pods, Flink, and Trino.
+
+The same skill can also drive verification and teardown. See
+[docs/deploy-runbook.md](docs/deploy-runbook.md) for the full manual flow.
+
 The first milestone is infrastructure readiness, not running every workload by
 default. OpenTofu provisions AWS infrastructure, and Argo CD manages the EKS
 services that can be added or removed independently.
@@ -34,15 +70,6 @@ apps/generator/     Commerce schema bootstrap and workload generator
 flink/sql/          CDC-to-Iceberg SQL templates
 docs/               Architecture, deployment, teardown, and operations notes
 ```
-
-## First Deploy Shape
-
-- RDS MySQL single instance with `commerce`, `payment`, and `logistics` schema bootstrap support
-- Provisioned MSK Kafka cluster, default `kafka.t3.small` x 2
-- EKS managed node group for platform/data/ML services
-- S3 bucket for Iceberg warehouse and Kubeflow artifacts
-- Glue databases for `bronze`, `silver`, and `gold`
-- IAM role for EKS service accounts that need S3/Glue/Secrets Manager access
 
 ## Data Walkthrough
 
@@ -217,31 +244,6 @@ Bronze table that stores the original Kafka value as JSON or string.
    databases and tables, and writes Bronze/Silver/Gold outputs to S3.
 9. Trino queries the Iceberg tables through Glue; Kubeflow can run validation or
    experiment pipelines against the same lakehouse data.
-
-## Quick Start
-
-This tutorial repository intentionally does not commit `k8s/rendered/`.
-Generate it after OpenTofu creates environment-specific outputs such as ECR
-image URLs, IAM role ARNs, S3 bucket names, and Kafka bootstrap brokers.
-
-```bash
-LAB_ID=tutorial-$USER scripts/labctl.sh init
-scripts/labctl.sh plan
-scripts/labctl.sh deploy
-```
-
-The deploy command applies OpenTofu, builds and pushes the two runtime images,
-renders `k8s/rendered/`, commits and pushes that rendered overlay, installs
-Argo CD, configures private-repo access with a lab deploy key, and applies the
-rendered root application.
-
-```bash
-scripts/labctl.sh status
-```
-
-See [docs/deploy-runbook.md](docs/deploy-runbook.md) for the full flow.
-If using Codex, invoke the bundled `cdc-lakehouse-lab` skill for setup,
-verification, and teardown.
 
 ## What To Check
 
