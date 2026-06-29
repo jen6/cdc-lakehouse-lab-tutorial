@@ -35,6 +35,14 @@ skill to run the same setup path more simply. It guides the lab through
 OpenTofu, image build/push, rendered GitOps manifests, Argo CD setup, and basic
 status checks without manually stepping through each command.
 
+Example Codex prompts:
+
+```text
+Use the cdc-lakehouse-lab setup skill to deploy this tutorial.
+Use the cdc-lakehouse-lab skill to check whether the lab is healthy.
+Use the cdc-lakehouse-lab skill to tear down the tutorial environment.
+```
+
 The first milestone is infrastructure readiness, not running every workload by
 default. OpenTofu provisions AWS infrastructure, and Argo CD manages the EKS
 services that can be added or removed independently.
