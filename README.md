@@ -28,20 +28,14 @@ and applies the rendered root application.
 scripts/labctl.sh status
 ```
 
-If you are using Codex, invoke the bundled `cdc-lakehouse-lab` setup skill
-instead of manually stepping through every command. The skill follows the same
-deployment path, but guides the run as an operator workflow:
+See [docs/deploy-runbook.md](docs/deploy-runbook.md) for the full manual flow.
 
-1. Checks required local tools and AWS/GitHub access.
-2. Creates or reuses `infra/opentofu/terraform.tfvars` with a unique `LAB_ID`.
-3. Runs the OpenTofu plan/deploy flow.
-4. Builds and pushes the tutorial runtime images.
-5. Renders `k8s/rendered/`, commits it, and pushes it for Argo CD.
-6. Installs/configures Argo CD and applies the rendered root app.
-7. Runs status checks for Argo CD applications, data pods, Flink, and Trino.
+## Codex Setup Skill
 
-The same skill can also drive verification and teardown. See
-[docs/deploy-runbook.md](docs/deploy-runbook.md) for the full manual flow.
+If you are using Codex, you can invoke the bundled `cdc-lakehouse-lab` setup
+skill to run the same setup path more simply. It guides the lab through
+OpenTofu, image build/push, rendered GitOps manifests, Argo CD setup, and basic
+status checks without manually stepping through each command.
 
 The first milestone is infrastructure readiness, not running every workload by
 default. OpenTofu provisions AWS infrastructure, and Argo CD manages the EKS
