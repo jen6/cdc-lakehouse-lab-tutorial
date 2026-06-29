@@ -163,10 +163,6 @@ resource "aws_iam_policy" "lakehouse_access" {
   name        = "${local.name}-lakehouse-access"
   description = "S3, Glue, and source secret access for EKS data workloads"
   policy      = data.aws_iam_policy_document.lakehouse_access.json
-
-  lifecycle {
-    prevent_destroy = true
-  }
 }
 
 data "aws_iam_policy_document" "data_workloads_irsa_assume_role" {
@@ -305,10 +301,6 @@ resource "aws_iam_role" "ml_workloads" {
 resource "aws_iam_role" "lakehouse_workloads" {
   name               = "${local.name}-lakehouse-workloads"
   assume_role_policy = data.aws_iam_policy_document.lakehouse_irsa_assume_role.json
-
-  lifecycle {
-    prevent_destroy = true
-  }
 }
 
 resource "aws_iam_role_policy_attachment" "data_workloads" {

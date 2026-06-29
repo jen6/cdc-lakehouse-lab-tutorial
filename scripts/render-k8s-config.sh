@@ -70,6 +70,16 @@ find "$OUT_DIR" -type f \( -name '*.yaml' -o -name '*.sql' \) -print0 |
     s#ap-northeast-2#$ENV{RENDER_AWS_REGION}#g;
   '
 
+perl -pi -e '
+  s#"text": "cdc-lakehouse-lab"#"text": "$ENV{RENDER_MSK_CLUSTER_NAME}"#g;
+  s#"value": "cdc-lakehouse-lab"#"value": "$ENV{RENDER_MSK_CLUSTER_NAME}"#g;
+' "$OUT_DIR/apps/platform/grafana-dashboards/community-aws-msk-dashboard.yaml"
+
+perl -pi -e '
+  s#"text": "cdc-lakehouse-lab-source"#"text": "$ENV{RENDER_RDS_DB_INSTANCE_IDENTIFIER}"#g;
+  s#"value": "cdc-lakehouse-lab-source"#"value": "$ENV{RENDER_RDS_DB_INSTANCE_IDENTIFIER}"#g;
+' "$OUT_DIR/apps/platform/grafana-dashboards/community-aws-rds-dashboard.yaml"
+
 perl -pi -e 's#path: k8s/argocd/apps#path: k8s/rendered/argocd/apps#g' "$OUT_DIR/argocd/root-app.yaml"
 find "$OUT_DIR/argocd/apps" -type f -name '*.yaml' -print0 |
   xargs -0 perl -pi -e 's#path: k8s/apps/#path: k8s/rendered/apps/#g'

@@ -229,7 +229,15 @@ commit_rendered() {
   if git -C "$ROOT_DIR" diff --cached --quiet -- k8s/rendered; then
     echo "No rendered manifest changes to commit."
   else
-    git -C "$ROOT_DIR" commit -m "Render lab GitOps manifests"
+    git -C "$ROOT_DIR" commit \
+      -m "Publish rendered manifests for this lab" \
+      -m "Constraint: Argo CD reads rendered environment-specific manifests from Git, while the tutorial seed keeps generated state out of the base commit." \
+      -m "Rejected: Commit placeholder manifests only | Argo CD would fetch unresolved AWS outputs and image references." \
+      -m "Confidence: medium" \
+      -m "Scope-risk: narrow" \
+      -m "Directive: Re-run scripts/labctl.sh render and scripts/labctl.sh commit-rendered after OpenTofu outputs or Kubernetes templates change." \
+      -m "Tested: scripts/labctl.sh render completed before this commit path." \
+      -m "Not-tested: Live Argo CD sync from this rendered revision."
   fi
   git -C "$ROOT_DIR" push origin HEAD
 }

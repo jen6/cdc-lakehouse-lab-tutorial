@@ -1,7 +1,8 @@
 data "aws_caller_identity" "current" {}
 
 resource "aws_s3_bucket" "lakehouse" {
-  bucket = "${local.name}-lakehouse-${data.aws_caller_identity.current.account_id}"
+  bucket        = "${local.name}-lakehouse-${data.aws_caller_identity.current.account_id}"
+  force_destroy = true
 }
 
 resource "aws_s3_bucket_versioning" "lakehouse" {

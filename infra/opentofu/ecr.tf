@@ -1,6 +1,7 @@
 resource "aws_ecr_repository" "source_generator" {
   name                 = "${local.name}/source-generator"
   image_tag_mutability = "MUTABLE"
+  force_delete         = true
 
   image_scanning_configuration {
     scan_on_push = true
@@ -35,6 +36,7 @@ resource "aws_ecr_lifecycle_policy" "source_generator" {
 resource "aws_ecr_repository" "flink_runtime" {
   name                 = "${local.name}/flink-runtime"
   image_tag_mutability = "MUTABLE"
+  force_delete         = true
 
   image_scanning_configuration {
     scan_on_push = true
