@@ -5,8 +5,6 @@ CDC data platform:
 
 ![AWS CDC lakehouse architecture](docs/assets/cdc-lakehouse-architecture.png)
 
-Diagram source/export: [SVG](docs/assets/cdc-lakehouse-architecture.svg), [draw.io companion](docs/diagrams/cdc-lakehouse-architecture.drawio).
-
 ## Quick Start
 
 This tutorial repository intentionally does not commit `k8s/rendered/`.
@@ -209,89 +207,5 @@ Bronze is a flattened order-event table, not a byte-for-byte archive of the full
 Debezium JSON. If you want to preserve complete raw envelopes, add a separate
 Bronze table that stores the original Kafka value as JSON or string.
 
-### End-to-End Procedure
-
-1. Choose a lab id, then initialize environment-specific values:
-
-   ```bash
-   LAB_ID=tutorial-$USER scripts/labctl.sh init
-   ```
-
-2. Review the infrastructure plan:
-
-   ```bash
-   scripts/labctl.sh plan
-   ```
-
-3. `scripts/labctl.sh deploy` provisions AWS infrastructure with OpenTofu,
-   builds runtime images, renders `k8s/rendered/`, pushes the rendered GitOps
-   overlay, installs Argo CD, and applies the root application.
-4. Argo CD installs platform services, data services, and optional ML services
-   from the rendered manifests.
-5. `source-generator-bootstrap` creates the MySQL schemas and seed inventory in
-   RDS.
-6. `source-generator` continuously mutates the MySQL tables so the binlog keeps
-   changing.
-7. `kafka-connect` registers the Debezium connector and publishes table CDC
-   topics into MSK.
-8. `flink-orders-cdc` reads `rds.commerce.orders`, creates the Glue/Iceberg
-   databases and tables, and writes Bronze/Silver/Gold outputs to S3.
-9. Trino queries the Iceberg tables through Glue; Kubeflow can run validation or
-   experiment pipelines against the same lakehouse data.
-
-## What To Check
-
-Most services are private inside the EKS cluster. Use port-forwarding from your
-local machine when you want to inspect them.
-
-| Component | What to look at | Command | URL |
-| --- | --- | --- | --- |
-| Argo CD | Application sync and health status | `kubectl -n argocd port-forward svc/argocd-server 8080:443` | `https://localhost:8080` |
-| Flink | Running/failed jobs, checkpoints, TaskManagers, job exceptions | `kubectl -n data port-forward svc/orders-cdc-rest 8082:8081` | `http://localhost:8082` |
-| Trino | Cluster status and query history | `kubectl -n data port-forward svc/trino 8084:8080` | `http://localhost:8084/ui/` |
-| Kafka Connect | Connector status and task failures | `kubectl -n data port-forward svc/kafka-connect 8083:8083` | `http://localhost:8083/connectors` |
-
-For quick status checks:
-
-```bash
-kubectl -n argocd get applications
-kubectl -n data get pods,svc
-kubectl -n data get flinkdeployment orders-cdc
-```
-
-Useful logs while debugging the CDC path:
-
-```bash
-kubectl -n data logs deploy/kafka-connect
-kubectl -n data logs deploy/source-generator
-kubectl -n data logs deploy/trino-coordinator
-kubectl -n data logs deploy/flink-kubernetes-operator
-kubectl -n data logs -l app=orders-cdc,component=jobmanager
-kubectl -n data logs -l app=orders-cdc,component=taskmanager
-```
-
-Trino's built-in Web UI is mainly for monitoring and query history. Run ad hoc
-SQL through the Trino CLI in the coordinator pod:
-
-```bash
-kubectl -n data exec -it deploy/trino-coordinator -- trino --server http://localhost:8080
-```
-
-Starter queries:
-
-```sql
-SHOW CATALOGS;
-SHOW SCHEMAS FROM iceberg;
-SHOW TABLES FROM iceberg.lab_bronze;
-SELECT * FROM iceberg.lab_bronze.orders_cdc_events LIMIT 10;
-SELECT * FROM iceberg.lab_silver.orders_current LIMIT 10;
-SELECT * FROM iceberg.lab_gold.order_revenue_by_status ORDER BY gross_amount DESC;
-```
-
-## MSK Scope
-
-This tutorial walkthrough uses provisioned MSK. That keeps broker count,
-replication settings, storage, and broker metrics visible for data-engineering
-practice. Serverless MSK is intentionally outside the documented path because
-it changes the authentication and client configuration work for Kafka Connect
-and Flink.
+For operational checks after deployment, use
+[docs/verification-checklist.md](docs/verification-checklist.md).
