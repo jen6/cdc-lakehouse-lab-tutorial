@@ -39,7 +39,7 @@ export TRINO_HOST="$2"
 export TRINO_PORT="$3"
 export ARTIFACT_PREFIX="$4"
 export PYTHONPATH=/tmp/pydeps
-python -m pip install --no-cache-dir --target /tmp/pydeps trino==0.333.0 boto3==1.35.99 >/tmp/pip-install.log
+python -m pip install --no-cache-dir --target /tmp/pydeps trino==0.338.0 boto3==1.43.37 >/tmp/pip-install.log
 python - <<'PY'
 import datetime as dt
 import json
@@ -162,9 +162,6 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> None:
     args = parse_args()
-    if args.submit and args.bucket == "REPLACE_WITH_LAKEHOUSE_BUCKET":
-        raise SystemExit("Set --bucket or LAKEHOUSE_BUCKET before submitting the pipeline.")
-
     package_path = Path(args.package)
     compiler.Compiler().compile(lakehouse_smoke_pipeline, str(package_path))
 

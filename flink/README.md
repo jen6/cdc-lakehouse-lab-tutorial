@@ -7,7 +7,7 @@ first CDC-to-Iceberg job. The custom runtime image is built from
 
 Required runtime image contents:
 
-- Apache Flink 1.19 runtime
+- Apache Flink 2.1 runtime
 - Flink Kafka connector
 - Apache Iceberg Flink runtime bundle
 - Iceberg AWS bundle
@@ -15,6 +15,5 @@ Required runtime image contents:
 - SQL runner reads `/opt/flink/sql/cdc_to_iceberg.sql` from the mounted
   ConfigMap
 
-The base manifest keeps the placeholder image value
-`REPLACE_WITH_FLINK_ICEBERG_IMAGE`; rendered manifests replace it with the ECR
-image built for this lab.
+The base manifest keeps a placeholder image value; rendered manifests replace
+it with the ECR image built for this lab.

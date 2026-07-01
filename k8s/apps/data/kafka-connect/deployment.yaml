@@ -16,20 +16,20 @@ spec:
       serviceAccountName: kafka-connect
       initContainers:
         - name: download-jmx-exporter
-          image: curlimages/curl:8.10.1
+          image: curlimages/curl:8.17.0
           command:
             - sh
             - -ec
             - |
               curl -fsSL \
-                https://repo1.maven.org/maven2/io/prometheus/jmx/jmx_prometheus_javaagent/0.20.0/jmx_prometheus_javaagent-0.20.0.jar \
+                https://repo1.maven.org/maven2/io/prometheus/jmx/jmx_prometheus_javaagent/1.0.1/jmx_prometheus_javaagent-1.0.1.jar \
                 -o /jmx/jmx_prometheus_javaagent.jar
           volumeMounts:
             - name: jmx-exporter-agent
               mountPath: /jmx
       containers:
         - name: connect
-          image: debezium/connect:2.7.3.Final
+          image: quay.io/debezium/connect:3.5.0.Final
           ports:
             - containerPort: 8083
               name: http

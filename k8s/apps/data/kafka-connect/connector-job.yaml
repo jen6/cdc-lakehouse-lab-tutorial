@@ -11,7 +11,7 @@ spec:
       restartPolicy: OnFailure
       containers:
         - name: register
-          image: curlimages/curl:8.9.1
+          image: curlimages/curl:8.17.0
           env:
             - name: DB_HOST
               valueFrom:

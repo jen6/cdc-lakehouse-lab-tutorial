@@ -36,7 +36,7 @@ resource "aws_db_subnet_group" "source" {
 
 resource "aws_db_parameter_group" "mysql_cdc" {
   name        = "${local.name}-mysql-cdc"
-  family      = "mysql8.0"
+  family      = "mysql8.4"
   description = "MySQL parameters required for Debezium CDC"
 
   parameter {

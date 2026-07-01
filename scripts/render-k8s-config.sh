@@ -8,22 +8,47 @@ OUT_DIR="${OUT_DIR:-$ROOT_DIR/k8s/rendered}"
 cd "$TOFU_DIR"
 
 tofu_output_raw() {
-  tofu output -raw "$1" 2>/dev/null || true
+  tofu output -no-color -raw "$1" 2>/dev/null || true
 }
 
-repo_url="$(tofu output -raw argocd_repository_url)"
-aws_region="$(tofu output -raw aws_region)"
-msk_mode="$(tofu output -raw msk_mode)"
-msk_bootstrap="$(tofu output -raw msk_bootstrap_brokers)"
-rds_secret_name="$(tofu output -raw rds_secret_name)"
-eks_cluster_name="$(tofu output -raw eks_cluster_name)"
-lakehouse_role_arn="$(tofu output -raw lakehouse_workloads_role_arn)"
-data_role_arn="$(tofu_output_raw data_workloads_role_arn)"
-platform_role_arn="$(tofu_output_raw platform_workloads_role_arn)"
-ml_role_arn="$(tofu_output_raw ml_workloads_role_arn)"
-lakehouse_bucket="$(tofu output -raw lakehouse_bucket)"
-source_generator_image="${SOURCE_GENERATOR_IMAGE:-$(tofu output -raw source_generator_repository_url):latest}"
-flink_image="${FLINK_ICEBERG_IMAGE:-$(tofu output -raw flink_runtime_repository_url):latest}"
+reject_bad_value() {
+  local name="$1"
+  local value="$2"
+  if [[ -z "$value" || "$value" == *"Warning:"* || "$value" == *"No outputs found"* || "$value" == *$'\033'* ]]; then
+    echo "Missing required render value: $name. Run tofu apply first or provide the matching environment override." >&2
+    exit 1
+  fi
+}
+
+value_from_env_or_output() {
+  local env_name="$1"
+  local output_name="$2"
+  local required="${3:-required}"
+  local value="${!env_name:-}"
+  if [[ -z "$value" ]]; then
+    value="$(tofu_output_raw "$output_name")"
+  fi
+  if [[ "$required" == "required" ]]; then
+    reject_bad_value "$env_name/$output_name" "$value"
+  fi
+  printf '%s' "$value"
+}
+
+repo_url="$(value_from_env_or_output ARGOCD_REPOSITORY_URL argocd_repository_url)"
+aws_region="$(value_from_env_or_output AWS_REGION aws_region)"
+msk_mode="$(value_from_env_or_output MSK_MODE msk_mode)"
+msk_bootstrap="$(value_from_env_or_output MSK_BOOTSTRAP_BROKERS msk_bootstrap_brokers)"
+rds_secret_name="$(value_from_env_or_output RDS_SECRET_NAME rds_secret_name)"
+eks_cluster_name="$(value_from_env_or_output EKS_CLUSTER_NAME eks_cluster_name)"
+lakehouse_role_arn="$(value_from_env_or_output LAKEHOUSE_WORKLOADS_ROLE_ARN lakehouse_workloads_role_arn)"
+data_role_arn="$(value_from_env_or_output DATA_WORKLOADS_ROLE_ARN data_workloads_role_arn optional)"
+platform_role_arn="$(value_from_env_or_output PLATFORM_WORKLOADS_ROLE_ARN platform_workloads_role_arn optional)"
+ml_role_arn="$(value_from_env_or_output ML_WORKLOADS_ROLE_ARN ml_workloads_role_arn optional)"
+lakehouse_bucket="$(value_from_env_or_output LAKEHOUSE_BUCKET lakehouse_bucket)"
+source_generator_repository_url="$(value_from_env_or_output SOURCE_GENERATOR_REPOSITORY_URL source_generator_repository_url)"
+flink_runtime_repository_url="$(value_from_env_or_output FLINK_RUNTIME_REPOSITORY_URL flink_runtime_repository_url)"
+source_generator_image="${SOURCE_GENERATOR_IMAGE:-$source_generator_repository_url:latest}"
+flink_image="${FLINK_ICEBERG_IMAGE:-$flink_runtime_repository_url:latest}"
 msk_cluster_name="${MSK_CLUSTER_NAME:-$eks_cluster_name}"
 rds_db_instance_identifier="${RDS_DB_INSTANCE_IDENTIFIER:-$eks_cluster_name-source}"
 
@@ -69,16 +94,6 @@ find "$OUT_DIR" -type f \( -name '*.yaml' -o -name '*.sql' \) -print0 |
     s#REPLACE_WITH_FLINK_ICEBERG_IMAGE#$ENV{RENDER_FLINK_IMAGE}#g;
     s#ap-northeast-2#$ENV{RENDER_AWS_REGION}#g;
   '
-
-perl -pi -e '
-  s#"text": "cdc-lakehouse-lab"#"text": "$ENV{RENDER_MSK_CLUSTER_NAME}"#g;
-  s#"value": "cdc-lakehouse-lab"#"value": "$ENV{RENDER_MSK_CLUSTER_NAME}"#g;
-' "$OUT_DIR/apps/platform/grafana-dashboards/community-aws-msk-dashboard.yaml"
-
-perl -pi -e '
-  s#"text": "cdc-lakehouse-lab-source"#"text": "$ENV{RENDER_RDS_DB_INSTANCE_IDENTIFIER}"#g;
-  s#"value": "cdc-lakehouse-lab-source"#"value": "$ENV{RENDER_RDS_DB_INSTANCE_IDENTIFIER}"#g;
-' "$OUT_DIR/apps/platform/grafana-dashboards/community-aws-rds-dashboard.yaml"
 
 perl -pi -e 's#path: k8s/argocd/apps#path: k8s/rendered/argocd/apps#g' "$OUT_DIR/argocd/root-app.yaml"
 find "$OUT_DIR/argocd/apps" -type f -name '*.yaml' -print0 |

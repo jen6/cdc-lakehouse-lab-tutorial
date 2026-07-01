@@ -6,8 +6,8 @@ metadata:
 spec:
   image: REPLACE_WITH_FLINK_ICEBERG_IMAGE
   imagePullPolicy: Always
-  restartNonce: 20260627232222
-  flinkVersion: v1_19
+  restartNonce: 20260630170000
+  flinkVersion: v2_1
   serviceAccount: flink-orders-cdc
   podTemplate:
     spec:

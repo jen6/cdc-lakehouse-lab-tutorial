@@ -47,7 +47,7 @@ resource "aws_msk_configuration" "cdc" {
   count = var.msk_mode == "provisioned" ? 1 : 0
 
   name           = "${local.name}-cdc"
-  kafka_versions = ["3.6.0"]
+  kafka_versions = ["3.9.x"]
 
   server_properties = <<-PROPERTIES
 auto.create.topics.enable=true
@@ -64,7 +64,7 @@ resource "aws_msk_cluster" "cdc" {
   count = var.msk_mode == "provisioned" ? 1 : 0
 
   cluster_name           = local.name
-  kafka_version          = "3.6.0"
+  kafka_version          = "3.9.x"
   number_of_broker_nodes = var.msk_broker_count
 
   broker_node_group_info {

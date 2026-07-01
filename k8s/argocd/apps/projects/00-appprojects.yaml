@@ -36,7 +36,7 @@ metadata:
 spec:
   description: CDC runtimes, stream processing, and lakehouse query services.
   sourceRepos:
-    - https://downloads.apache.org/flink/flink-kubernetes-operator-1.12.1/
+    - https://downloads.apache.org/flink/flink-kubernetes-operator-1.15.0/
     - https://trinodb.github.io/charts
     - https://github.com/your-org/cdc-lakehouse-lab.git
   destinations:

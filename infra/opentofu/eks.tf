@@ -1,24 +1,26 @@
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
-  version = "~> 20.0"
+  version = "~> 21.0"
 
-  cluster_name    = local.name
-  cluster_version = var.eks_cluster_version
+  name               = local.name
+  kubernetes_version = var.eks_cluster_version
 
-  cluster_endpoint_public_access           = true
+  endpoint_public_access                   = true
   enable_irsa                              = true
   enable_cluster_creator_admin_permissions = true
 
   vpc_id     = module.vpc.vpc_id
   subnet_ids = module.vpc.private_subnets
 
-  cluster_addons = {
+  addons = {
     aws-ebs-csi-driver = {
       service_account_role_arn = aws_iam_role.ebs_csi.arn
     }
     coredns    = {}
     kube-proxy = {}
-    vpc-cni    = {}
+    vpc-cni = {
+      before_compute = true
+    }
   }
 
   eks_managed_node_groups = {

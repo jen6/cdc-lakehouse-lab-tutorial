@@ -5,11 +5,11 @@ COPY pom.xml .
 COPY src ./src
 RUN mvn -B -DskipTests package
 
-FROM flink:1.19.1-scala_2.12-java17
+FROM flink:2.1.3-scala_2.12-java17
 
-ARG FLINK_KAFKA_CONNECTOR_VERSION=3.3.0-1.19
-ARG FLINK_VERSION=1.19.1
-ARG ICEBERG_VERSION=1.9.2
+ARG FLINK_KAFKA_CONNECTOR_VERSION=5.0.0-2.1
+ARG FLINK_VERSION=2.1.3
+ARG ICEBERG_VERSION=1.11.0
 ARG HADOOP_VERSION=3.3.6
 
 RUN curl -fsSL \
@@ -19,7 +19,7 @@ RUN curl -fsSL \
       "https://repo1.maven.org/maven2/org/apache/flink/flink-metrics-prometheus/${FLINK_VERSION}/flink-metrics-prometheus-${FLINK_VERSION}.jar" \
       -o /opt/flink/lib/flink-metrics-prometheus.jar \
     && curl -fsSL \
-      "https://repo1.maven.org/maven2/org/apache/iceberg/iceberg-flink-runtime-1.19/${ICEBERG_VERSION}/iceberg-flink-runtime-1.19-${ICEBERG_VERSION}.jar" \
+      "https://repo1.maven.org/maven2/org/apache/iceberg/iceberg-flink-runtime-2.1/${ICEBERG_VERSION}/iceberg-flink-runtime-2.1-${ICEBERG_VERSION}.jar" \
       -o /opt/flink/lib/iceberg-flink-runtime.jar \
     && curl -fsSL \
       "https://repo1.maven.org/maven2/org/apache/iceberg/iceberg-aws-bundle/${ICEBERG_VERSION}/iceberg-aws-bundle-${ICEBERG_VERSION}.jar" \

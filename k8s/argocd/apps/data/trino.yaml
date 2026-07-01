@@ -8,7 +8,7 @@ spec:
   source:
     repoURL: https://trinodb.github.io/charts
     chart: trino
-    targetRevision: 0.28.0
+    targetRevision: 1.42.2
     helm:
       releaseName: trino
       values: |
@@ -23,7 +23,6 @@ spec:
           enabled: true
           exporter:
             enabled: true
-            image: bitnami/jmx-exporter:latest
             pullPolicy: IfNotPresent
             port: 5556
             configProperties: |-

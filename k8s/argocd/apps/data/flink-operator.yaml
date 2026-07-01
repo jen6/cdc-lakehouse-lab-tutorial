@@ -8,9 +8,9 @@ metadata:
 spec:
   project: data
   source:
-    repoURL: https://downloads.apache.org/flink/flink-kubernetes-operator-1.12.1/
+    repoURL: https://downloads.apache.org/flink/flink-kubernetes-operator-1.15.0/
     chart: flink-kubernetes-operator
-    targetRevision: 1.12.1
+    targetRevision: 1.15.0
     helm:
       releaseName: flink-kubernetes-operator
       values: |

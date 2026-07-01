@@ -36,7 +36,7 @@ variable "az_count" {
 variable "eks_cluster_version" {
   description = "EKS Kubernetes version."
   type        = string
-  default     = "1.31"
+  default     = "1.36"
 }
 
 variable "eks_node_instance_types" {
@@ -109,7 +109,7 @@ variable "rds_allocated_storage" {
 variable "rds_engine_version" {
   description = "RDS MySQL engine version family."
   type        = string
-  default     = "8.0"
+  default     = "8.4.9"
 }
 
 variable "rds_master_username" {
